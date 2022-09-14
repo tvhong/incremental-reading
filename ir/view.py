@@ -14,8 +14,9 @@
 # LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
-from typing import Any
+from typing import Any, Optional
 
+from anki.cards import Card
 from anki.hooks import addHook
 from aqt import mw
 from aqt import gui_hooks
@@ -34,19 +35,32 @@ class ViewManager:
         self.widthScript = loadFile('web', 'width.js')
         self.zoomFactor = 1
         addHook('afterStateChange', self.resetZoom)
-        addHook('prepareQA', self.prepareCard)
         gui_hooks.webview_did_receive_js_message.append(self._store_page_info)
+        gui_hooks.card_will_show.append(self._prepare_card)
         mw.web.page().scrollPositionChanged.connect(self.saveScroll)
 
-    def prepareCard(self, html, card, context):
-        if (isIrCard(card) and self.settings['limitWidth']) or self.settings[
-            'limitWidthAll'
-        ]:
+    def _store_page_info(self, handled: tuple[bool, Any], message: str, context: Any) -> tuple[bool, Any]:
+        if message == 'ir-store' and isinstance(context, Reviewer):
+            def callback(pageInfo: tuple[float, float]):
+                self.viewportHeight, self.pageBottom = pageInfo
+
+            mw.web.evalWithCallback(
+                '[window.innerHeight, document.body.scrollHeight];', callback
+            )
+
+            # Don't pass command to other handlers
+            return True, None
+        else:
+            # Some other command, pass it on
+            return handled
+
+    def _prepare_card(self, html: str, card: Card, kind: str) -> str:
+        if (isIrCard(card) and self.settings['limitWidth']) or self.settings['limitWidthAll']:
             js = self.widthScript.format(maxWidth=self.settings['maxWidth'])
         else:
             js = ''
 
-        if isIrCard(card) and context.startswith('review'):
+        if isIrCard(card) and kind.startswith('review'):
             cid = str(card.id)
 
             if cid not in self.settings['zoom']:
@@ -65,21 +79,6 @@ class ViewManager:
             html += '<script>' + js + '</script>'
 
         return html
-
-    def _store_page_info(self, handled: tuple[bool, Any], message: str, context: Any) -> tuple[bool, Any]:
-        if message == 'ir-store' and isinstance(context, Reviewer):
-            def callback(pageInfo: tuple[float, float]):
-                self.viewportHeight, self.pageBottom = pageInfo
-
-            mw.web.evalWithCallback(
-                '[window.innerHeight, document.body.scrollHeight];', callback
-            )
-
-            # Don't pass command to other handlers
-            return True, None
-        else:
-            # Some other command, pass it on
-            return handled
 
     def setZoom(self, factor=None):
         if factor:

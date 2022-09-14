@@ -15,7 +15,7 @@
  */
 
 function storePageInfo() {{
-    pycmd("store")
+    pycmd("ir-store")
 }}
 
 function restoreScroll() {{

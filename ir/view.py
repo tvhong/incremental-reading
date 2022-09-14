@@ -14,25 +14,28 @@
 # LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
+from typing import Any
 
 from anki.hooks import addHook
 from aqt import mw
+from aqt import gui_hooks
+from aqt.reviewer import Reviewer
 
 from .util import isIrCard, loadFile, viewingIrText
 
 
 class ViewManager:
-    viewportHeight = None
-    pageBottom = None
+    viewportHeight: float = None
+    pageBottom: float = None
 
     def __init__(self):
         self.scrollScript = loadFile('web', 'scroll.js')
         self.textScript = loadFile('web', 'text.js')
         self.widthScript = loadFile('web', 'width.js')
         self.zoomFactor = 1
-        self.origBridgeCmd = None
         addHook('afterStateChange', self.resetZoom)
         addHook('prepareQA', self.prepareCard)
+        gui_hooks.webview_did_receive_js_message.append(self._store_page_info)
         mw.web.page().scrollPositionChanged.connect(self.saveScroll)
 
     def prepareCard(self, html, card, context):
@@ -44,8 +47,6 @@ class ViewManager:
             js = ''
 
         if isIrCard(card) and context.startswith('review'):
-            self.origBridgeCmd = mw.web.onBridgeCmd
-            mw.web.onBridgeCmd = self.storePageInfo
             cid = str(card.id)
 
             if cid not in self.settings['zoom']:
@@ -65,17 +66,20 @@ class ViewManager:
 
         return html
 
-    def storePageInfo(self, cmd):
-        if cmd == 'store':
-
-            def callback(pageInfo):
+    def _store_page_info(self, handled: tuple[bool, Any], message: str, context: Any) -> tuple[bool, Any]:
+        if message == 'ir-store' and isinstance(context, Reviewer):
+            def callback(pageInfo: tuple[float, float]):
                 self.viewportHeight, self.pageBottom = pageInfo
 
             mw.web.evalWithCallback(
                 '[window.innerHeight, document.body.scrollHeight];', callback
             )
-        elif self.origBridgeCmd:
-            return self.origBridgeCmd(cmd)
+
+            # Don't pass command to other handlers
+            return True, None
+        else:
+            # Some other command, pass it on
+            return handled
 
     def setZoom(self, factor=None):
         if factor:

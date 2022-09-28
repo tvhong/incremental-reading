@@ -57,6 +57,10 @@ class ReadingManager:
         )
         self.importer.changeProfile(self.settings)
         self.scheduler.changeProfile(self.settings)
+
+        if mw.readingManager.settings['schedulerType'] == 'PQv2':
+            gui_hooks.reviewer_did_answer_card.append(self.scheduler.answer2)
+
         self.textManager.changeProfile(self.settings)
         self.viewManager.changeProfile(self.settings)
         self.viewManager.resetZoom('deckBrowser')
@@ -193,7 +197,7 @@ class ReadingManager:
 
 def answerButtonList(self, _old: Any) -> tuple[tuple[int, str], ...]:
     if isIrCard(self.card):
-        if mw.readingManager.settings['prioEnabled']:
+        if mw.readingManager.settings['prioEnabled'] or mw.readingManager.settings['schedulerType'] == 'PQv2':
             return ((1, 'Next'),)
         return ((1, 'Soon'), (2, 'Later'), (3, 'Custom'))
 

@@ -18,7 +18,6 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 from re import sub
-from typing import Sequence
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
@@ -30,15 +29,16 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
-from anki.consts import CARD_TYPE_NEW, CARD_TYPE_LRN, CARD_TYPE_RELEARNING, CARD_TYPE_REV
-from anki.cards import Card, CardId
+from anki.cards import Card
+from anki.consts import CARD_TYPE_REV
 from anki.decks import DeckId
 from anki.utils import strip_html
 from aqt import mw
+from aqt.reviewer import Reviewer
 from aqt.utils import showInfo
 
 from .settings import SettingsManager
-from .util import showBrowser, isIrCard
+from .util import showBrowser, getField
 
 SCHEDULE_EXTRACT = 0
 SCHEDULE_SOON = 1
@@ -117,11 +117,30 @@ class PriorityQueueScheduler:
             if self._cardListWidget.item(i).isSelected()
         ]
 
+    def answer2(self, reviewer: Reviewer, card: Card, ease: int) -> None:
+        priority = getField(card.note(), self._settings['prioField']) or int(self._settings['prioDefault'])
+
+        # TODO: can use card.custom_data from Anki 2.1.55 onward for more precise intervals
+        prevInterval = card.lastIvl if hasattr(card, 'lastIvl') else 0  # new cards don't have lastIvl
+
+        # The higher the priority (more important), the less interval will increase
+        newInterval = int(round(prevInterval * (1 + 1 / priority)))
+
+        # Making sure that interval always increases
+        if newInterval == prevInterval:
+            newInterval += 1
+
+        # TODO: move the card out of learning queue (red queue) somehow
+        # Use "!" suffix to update the both the interval and due date
+        mw.col.sched.set_due_date([card.id], str(newInterval) + "!")
+
     def answer(self, card: Card, ease: int):
-        # TODO: after answer, set new due date based on card's priority and current interval
         pass
 
     def _getCardInfo(self, deckId: DeckId):
+        # TODO: careful, we need to ignore the new card limit per day
+        # TODO: ranked based on priority and timeSinceLastReview
+        # TODO: skip suspended cards
         deck = mw.col.decks.get(deckId)
         cardIds = mw.col.find_cards(
             f'note:"{self._settings["modelName"]}" deck:"{deck.get("name")}" (is:new OR is:due)')

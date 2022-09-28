@@ -69,6 +69,7 @@ class SettingsManager:
         'pageScrollFactor': 0.5,
         'plainText': False,
         'pocketArchive': True,
+        'schedulerType': 'PQv2',
         'prioDefault': '5',
         'prioEnabled': False,
         'prioField': 'Priority',

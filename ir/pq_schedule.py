@@ -118,13 +118,11 @@ class PriorityQueueScheduler:
         ]
 
     def answer2(self, reviewer: Reviewer, card: Card, ease: int) -> None:
-        priority = getField(card.note(), self._settings['prioField']) or int(self._settings['prioDefault'])
-
         # TODO: can use card.custom_data from Anki 2.1.55 onward for more precise intervals
-        prevInterval = card.lastIvl if hasattr(card, 'lastIvl') else 0  # new cards don't have lastIvl
+        prevInterval = self._getPrevInterval(card, 'lastIvl')
 
         # The higher the priority (more important), the less interval will increase
-        newInterval = int(round(prevInterval * (1 + 1 / priority)))
+        newInterval = int(round(prevInterval * (1 + 1 / self._getPriority(card))))
 
         # Making sure that interval always increases
         if newInterval == prevInterval:
@@ -139,11 +137,13 @@ class PriorityQueueScheduler:
 
     def _getCardInfo(self, deckId: DeckId):
         # TODO: careful, we need to ignore the new card limit per day
-        # TODO: ranked based on priority and timeSinceLastReview
         deck = mw.col.decks.get(deckId)
         cardIds = mw.col.find_cards(
             f'note:"{self._settings["modelName"]}" deck:"{deck.get("name")}" (is:new OR is:due) -is:suspended')
-        cards = (mw.col.get_card(cid) for cid in cardIds)
+        cards = [mw.col.get_card(cid) for cid in cardIds]
+
+        # Higher item: larger priority, or larger interval, or smaller id.
+        cards.sort(key=lambda c: (-self._getPriority(c), -self._getPrevInterval(c, 'ivl'), c.id))
         return [
             {
                 'id': c.id,
@@ -153,3 +153,10 @@ class PriorityQueueScheduler:
             }
             for c in cards
         ]
+
+    def _getPriority(self, card: Card) -> int:
+        prio: str = getField(card.note(), self._settings['prioField']) or self._settings['prioDefault']
+        return int(prio)
+
+    def _getPrevInterval(self, card: Card, fieldName: str) -> int:
+        return getattr(card, fieldName) if hasattr(card, fieldName) else 0  # new cards don't have lastIvl

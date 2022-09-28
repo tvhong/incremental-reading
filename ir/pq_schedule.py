@@ -140,10 +140,9 @@ class PriorityQueueScheduler:
     def _getCardInfo(self, deckId: DeckId):
         # TODO: careful, we need to ignore the new card limit per day
         # TODO: ranked based on priority and timeSinceLastReview
-        # TODO: skip suspended cards
         deck = mw.col.decks.get(deckId)
         cardIds = mw.col.find_cards(
-            f'note:"{self._settings["modelName"]}" deck:"{deck.get("name")}" (is:new OR is:due)')
+            f'note:"{self._settings["modelName"]}" deck:"{deck.get("name")}" (is:new OR is:due) -is:suspended')
         cards = (mw.col.get_card(cid) for cid in cardIds)
         return [
             {

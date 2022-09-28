@@ -28,7 +28,7 @@ import sip
 from .about import showAbout
 from .gui import SettingsDialog
 from .importer import Importer
-from .schedule import Scheduler
+from .pq_schedule import PriorityQueueScheduler
 from .settings import SettingsManager
 from .text import TextManager
 from .util import addMenuItem, isIrCard, loadFile
@@ -40,7 +40,8 @@ class ReadingManager:
 
     def __init__(self):
         self.importer = Importer()
-        self.scheduler = Scheduler()
+        # self.scheduler = Scheduler()
+        self.scheduler = PriorityQueueScheduler()
         self.textManager = TextManager()
         self.viewManager = ViewManager()
         gui_hooks.profile_did_open.append(self.onProfileLoaded)

@@ -30,14 +30,15 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
-from anki.decks import DeckId
+from anki.consts import CARD_TYPE_NEW, CARD_TYPE_LRN, CARD_TYPE_RELEARNING, CARD_TYPE_REV
 from anki.cards import Card, CardId
+from anki.decks import DeckId
 from anki.utils import strip_html
 from aqt import mw
 from aqt.utils import showInfo
 
 from .settings import SettingsManager
-from .util import showBrowser
+from .util import showBrowser, isIrCard
 
 SCHEDULE_EXTRACT = 0
 SCHEDULE_SOON = 1
@@ -121,19 +122,16 @@ class PriorityQueueScheduler:
         pass
 
     def _getCardInfo(self, deckId: DeckId):
-        # TODO: get the list of items overdue
         deck = mw.col.decks.get(deckId)
-        cardIds = mw.col.find_cards(f'deck:"{deck.get("name")}"')
+        cardIds = mw.col.find_cards(
+            f'note:"{self._settings["modelName"]}" deck:"{deck.get("name")}" (is:new OR is:due)')
         cards = (mw.col.get_card(cid) for cid in cardIds)
-        irCards = (c for c in cards if c.note_type()['name'] == self._settings['modelName'])
-        irCardsInfo = (
+        return [
             {
                 'id': c.id,
                 'nid': c.note().id,
                 'title': c.note()[self._settings['titleField']],
                 'priority': c.note()[self._settings['prioField']] if self._settings['prioEnabled'] else None
             }
-            for c in irCards
-        )
-
-        return list(irCardsInfo)
+            for c in cards
+        ]

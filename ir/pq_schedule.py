@@ -17,25 +17,24 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-from random import gauss, shuffle
 from re import sub
+from typing import Sequence
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QAbstractItemView,
     QDialog,
     QDialogButtonBox,
-    QHBoxLayout,
     QListWidget,
     QListWidgetItem,
-    QPushButton,
     QVBoxLayout,
 )
 
-from anki.cards import Card
+from anki.decks import DeckId
+from anki.cards import Card, CardId
 from anki.utils import strip_html
 from aqt import mw
-from aqt.utils import showInfo, tooltip
+from aqt.utils import showInfo
 
 from .settings import SettingsManager
 from .util import showBrowser
@@ -118,29 +117,23 @@ class PriorityQueueScheduler:
         ]
 
     def answer(self, card: Card, ease: int):
+        # TODO: after answer, set new due date based on card's priority and current interval
         pass
 
-    def _getCardInfo(self, did):
+    def _getCardInfo(self, deckId: DeckId):
         # TODO: get the list of items overdue
-        cardInfo = []
+        deck = mw.col.decks.get(deckId)
+        cardIds = mw.col.find_cards(f'deck:"{deck.get("name")}"')
+        cards = (mw.col.get_card(cid) for cid in cardIds)
+        irCards = (c for c in cards if c.note_type()['name'] == self._settings['modelName'])
+        irCardsInfo = (
+            {
+                'id': c.id,
+                'nid': c.note().id,
+                'title': c.note()[self._settings['titleField']],
+                'priority': c.note()[self._settings['prioField']] if self._settings['prioEnabled'] else None
+            }
+            for c in irCards
+        )
 
-        for cid, nid in mw.col.db.execute(
-                'select id, nid from cards where did = ?', did
-        ):
-            note = mw.col.get_note(nid)
-            if note.note_type()['name'] == self._settings['modelName']:
-                if self._settings['prioEnabled']:
-                    prio = note[self._settings['prioField']]
-                else:
-                    prio = None
-
-                cardInfo.append(
-                    {
-                        'id': cid,
-                        'nid': nid,
-                        'title': note[self._settings['titleField']],
-                        'priority': prio,
-                    }
-                )
-
-        return cardInfo
+        return list(irCardsInfo)

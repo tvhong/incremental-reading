@@ -16,7 +16,6 @@
 # LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
-
 from re import sub
 
 from PyQt5.QtCore import Qt
@@ -30,7 +29,6 @@ from PyQt5.QtWidgets import (
 )
 
 from anki.cards import Card
-from anki.consts import CARD_TYPE_REV
 from anki.decks import DeckId
 from anki.utils import strip_html
 from aqt import mw
@@ -128,9 +126,9 @@ class PriorityQueueScheduler:
         if newInterval == prevInterval:
             newInterval += 1
 
-        # TODO: move the card out of learning queue (red queue) somehow
         # Use "!" suffix to update the both the interval and due date
         mw.col.sched.set_due_date([card.id], str(newInterval) + "!")
+        mw.col.reset()
 
     def answer(self, card: Card, ease: int):
         pass

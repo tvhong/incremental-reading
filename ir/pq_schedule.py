@@ -36,7 +36,7 @@ from aqt.reviewer import Reviewer
 from aqt.utils import showInfo
 
 from .settings import SettingsManager
-from .util import showBrowser, getField
+from .util import showBrowser, getField, isIrCard
 
 SCHEDULE_EXTRACT = 0
 SCHEDULE_SOON = 1
@@ -116,8 +116,11 @@ class PriorityQueueScheduler:
         ]
 
     def answer2(self, reviewer: Reviewer, card: Card, ease: int) -> None:
-        # TODO: can use card.custom_data from Anki 2.1.55 onward for more precise intervals
-        prevInterval = self._getPrevInterval(card, 'lastIvl')
+        # TODO: use card.custom_data from Anki 2.1.55 cause ivl is changed by Anki
+        if not isIrCard(card):
+            return
+
+        prevInterval = self._getPrevInterval(card, 'ivl')
 
         # The higher the priority (more important), the less interval will increase
         newInterval = int(round(prevInterval * (1 + 1 / self._getPriority(card))))

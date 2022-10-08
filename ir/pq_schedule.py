@@ -60,7 +60,7 @@ class PriorityQueueScheduler:
         else:
             return
 
-        if not self._getCardInfo(self._deckId):
+        if not self._getCardsInfo(self._deckId):
             showInfo('Please select an Incremental Reading deck.')
             return
 
@@ -95,10 +95,10 @@ class PriorityQueueScheduler:
         dialog.exec()
 
     def _updateListItems(self):
-        cardInfo = self._getCardInfo(self._deckId)
+        cardsInfo = self._getCardsInfo(self._deckId)
         self._cardListWidget.clear()
-        posWidth = len(str(len(cardInfo) + 1))
-        for i, card in enumerate(cardInfo, start=1):
+        posWidth = len(str(len(cardsInfo) + 1))
+        for i, card in enumerate(cardsInfo, start=1):
             info = str(i).zfill(posWidth)
             title = sub(r'\s+', ' ', strip_html(card['title']))
             text = self._settings['organizerFormat'].format(
@@ -116,7 +116,7 @@ class PriorityQueueScheduler:
         ]
 
     def answer2(self, reviewer: Reviewer, card: Card, ease: int) -> None:
-        # TODO: use card.custom_data from Anki 2.1.55 cause ivl is changed by Anki
+        # TODO: use card.custom_data from Anki 2.1.55 because ivl is changed by Anki
         if not isIrCard(card):
             return
 
@@ -136,7 +136,7 @@ class PriorityQueueScheduler:
     def answer(self, card: Card, ease: int):
         pass
 
-    def _getCardInfo(self, deckId: DeckId):
+    def _getCardsInfo(self, deckId: DeckId):
         # TODO: careful, we need to ignore the new card limit per day
         deck = mw.col.decks.get(deckId)
         cardIds = mw.col.find_cards(

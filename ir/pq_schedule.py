@@ -94,6 +94,15 @@ class PriorityQueueScheduler:
         dialog.resize(500, 500)
         dialog.exec()
 
+    def getNextIrCard(self) -> Card:
+        deck = mw.col.decks.current()
+        if deck:
+            deckId = deck['id']
+            cards = self._getCards(deckId)
+            return cards[0] if cards else None
+
+        return None
+
     def _updateListItems(self):
         cardsInfo = self._getCardsInfo(self._deckId)
         self._cardListWidget.clear()
@@ -137,14 +146,8 @@ class PriorityQueueScheduler:
         pass
 
     def _getCardsInfo(self, deckId: DeckId):
-        # TODO: careful, we need to ignore the new card limit per day
-        deck = mw.col.decks.get(deckId)
-        cardIds = mw.col.find_cards(
-            f'note:"{self._settings["modelName"]}" deck:"{deck.get("name")}" (is:new OR is:due) -is:suspended')
-        cards = [mw.col.get_card(cid) for cid in cardIds]
-
-        # Higher item: larger priority, or larger interval, or smaller id.
-        cards.sort(key=lambda c: (-self._getPriority(c), -self._getPrevInterval(c, 'ivl'), c.id))
+        # TODO: careful, we need to ignore the new card limit per day (when getting new card for review)
+        cards = self._getCards(deckId)
         return [
             {
                 'id': c.id,
@@ -154,6 +157,17 @@ class PriorityQueueScheduler:
             }
             for c in cards
         ]
+
+    def _getCards(self, deckId: DeckId):
+        deck = mw.col.decks.get(deckId)
+        cardIds = mw.col.find_cards(
+            f'note:"{self._settings["modelName"]}" deck:"{deck.get("name")}" (is:new OR is:due) -is:suspended')
+        cards = [mw.col.get_card(cid) for cid in cardIds]
+
+        # Higher item: larger priority, or larger interval, or smaller id.
+        cards.sort(key=lambda c: (-self._getPriority(c), -self._getPrevInterval(c, 'ivl'), c.id))
+
+        return cards
 
     def _getPriority(self, card: Card) -> int:
         prio: str = getField(card.note(), self._settings['prioField']) or self._settings['prioDefault']

@@ -195,6 +195,16 @@ class ReadingManager:
         mw.col.models.add(model)
 
 
+def getNextCard(self, _old: Any) -> None:
+    # FIXME: broken, reviewer checks its internal queue
+    card = mw.readingManager.scheduler.getNextIrCard()
+    if card:
+        card.start_timer()
+        self.card = card
+    else:
+        _old()
+
+
 def answerButtonList(self, _old: Any) -> tuple[tuple[int, str], ...]:
     if isIrCard(self.card):
         if mw.readingManager.settings['prioEnabled'] or mw.readingManager.settings['schedulerType'] == 'PQv2':
@@ -224,6 +234,8 @@ def onBrowserClosed(self) -> None:
         return
 
 
+Reviewer._get_next_v1_v2_card = wrap(Reviewer._get_next_v1_v2_card, getNextCard, 'around')
+Reviewer._get_next_v3_card = wrap(Reviewer._get_next_v3_card, getNextCard, 'around')
 Reviewer._answerButtonList = wrap(
     Reviewer._answerButtonList, answerButtonList, 'around'
 )

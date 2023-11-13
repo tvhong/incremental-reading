@@ -19,39 +19,24 @@
 
 from unicodedata import normalize
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import (
-    QButtonGroup,
-    QCheckBox,
-    QComboBox,
-    QDialog,
-    QDialogButtonBox,
-    QGroupBox,
-    QHBoxLayout,
-    QKeySequenceEdit,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QRadioButton,
-    QTabWidget,
-    QVBoxLayout,
-    QWidget,
-)
+try:
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtGui import QFont
+except ModuleNotFoundError:
+    from PyQt5.QtCore import Qt
+    from PyQt5.QtGui import QFont
 
 from anki.notes import Note
 from aqt import mw
+from aqt.qt import (QButtonGroup, QCheckBox, QComboBox, QDialog,
+                    QDialogButtonBox, QGroupBox, QHBoxLayout, QKeySequenceEdit,
+                    QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget,
+                    QVBoxLayout, QWidget)
 from aqt.tagedit import TagEdit
 from aqt.utils import showInfo, showWarning, tooltip
 
-from .util import (
-    createSpinBox,
-    getColorList,
-    getFieldNames,
-    removeComboBoxItem,
-    setComboBoxItem,
-    setField,
-)
+from .util import (createSpinBox, getColorList, getFieldNames,
+                   removeComboBoxItem, setComboBoxItem, setField)
 
 
 class SettingsDialog:

@@ -16,14 +16,14 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+from typing import Any, Sequence
+
 from anki.cards import Card
 from anki.hooks import addHook, wrap
 from aqt import gui_hooks, mw
 from aqt.browser import Browser
+from aqt.qt import sip
 from aqt.reviewer import Reviewer
-from typing import Any, Sequence
-
-import sip
 
 from .about import showAbout
 from .gui import SettingsDialog

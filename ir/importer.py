@@ -80,6 +80,12 @@ class Importer:
         for link in webpage.find_all('link'):
             self._processLinkTag(url, link, local)
 
+        headlinks = webpage.head.find_all('link')
+        headlinks.reverse()
+        for link in headlinks:
+            if 'stylesheet' in link['rel']:
+                webpage.body.insert(0, link)
+
         return webpage
 
     def _createNote(self, title, text, source, priority=None):

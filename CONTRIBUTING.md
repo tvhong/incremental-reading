@@ -11,20 +11,11 @@ First, install poetry following the instructions from https://python-poetry.org/
 
 Then, install dependencies:
 ```shell
-poetry install --no-root
+make install-deps
 ```
 
 Poetry will automatically create a virtual environment and install the dependencies.
-
-To activate the virtual environment, you can use either:
-```
-poetry shell # creates a new shell, exit with `exit`
-```
-or
-```
-source $(poetry env info --path)/bin/activate
-```
-See https://python-poetry.org/docs/basic-usage/
+To use the virtual environment, see https://python-poetry.org/docs/basic-usage/#using-your-virtual-environment
 
 # Manual Test
 

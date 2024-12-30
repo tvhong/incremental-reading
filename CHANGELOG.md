@@ -13,8 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Missing About menu on OSX (#47)
 
 ### Changed
-- Use `poetry` to manage the project (#43)
-- Add GitHub workflow to run tests automatically
+- Various improvements to development process (#43)
 
 ### Removed
 - `maxWidth` configuration

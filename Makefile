@@ -13,7 +13,7 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 export PYTHONPATH=.
-VERSION=$(shell cat ir/_version.py | grep __version__ | sed "s/.*'\(.*\)'.*/\1/")
+VERSION=$(shell poetry version -s)
 PROJECT_SHORT=ir
 PROJECT_LONG=incremental-reading
 

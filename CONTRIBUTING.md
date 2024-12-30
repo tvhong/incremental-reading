@@ -8,6 +8,10 @@ The project is structured as follow:
 We use `poetry` to manage project dependency.
 
 First, install poetry following the instructions from https://python-poetry.org/docs/#installation .
+Then, install poetry-bumpversion plugin
+```
+poetry self add poetry-bumpversion
+```
 
 Then, install dependencies:
 ```shell

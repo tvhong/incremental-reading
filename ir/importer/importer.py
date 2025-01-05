@@ -50,11 +50,12 @@ from bs4 import BeautifulSoup, Comment, PageElement, Tag
 from requests import get
 from requests.exceptions import ConnectionError
 
+from ir.lib.feedparser import parse
+from ir.settings import SettingsManager
+from ir.util import setField
+
 from .epub import get_epub_toc
-from .lib.feedparser import parse
 from .pocket import Pocket
-from .settings import SettingsManager
-from .util import setField
 
 
 class Importer:

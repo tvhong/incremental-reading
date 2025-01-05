@@ -46,7 +46,7 @@ from aqt.utils import (
     showWarning,
     tooltip,
 )
-from bs4 import BeautifulSoup, Comment, PageElement
+from bs4 import BeautifulSoup, Comment, PageElement, Tag
 from requests import get
 from requests.exceptions import ConnectionError
 
@@ -402,11 +402,14 @@ class Importer:
             else:
                 a["href"] = urljoin(url, a["href"])
 
-    def _processImgTag(self, url: str, img: PageElement, local=False):
+    def _processImgTag(self, url: str, img: Tag, local=False):
+        """
+        Copy image from local storage to Anki media folder and replace src with local path
+        """
         if not img.get("src"):
             return
 
-        img["src"] = urljoin(url, img.get("src", ""))
+        img["src"] = urljoin(url, img["src"])
         if local and urlsplit(img["src"]).scheme == "file":
             filepath = url2pathname(urlsplit(img["src"]).path)
             mediafilepath = mw.col.media.add_file(filepath)

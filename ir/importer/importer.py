@@ -109,47 +109,6 @@ class Importer:
 
         return deck
 
-    def importLocalFile(self, filepath=None, priority=None, silent=False, title=None):
-        if not filepath:
-            filepath = getFile(None, "Import Local File", None, filter="*")
-
-        if not filepath:
-            return
-
-        filepath = Path(filepath).as_posix()  # Convert Windows Path to Linux
-        if not os.path.isfile(filepath):
-            showCritical(f"File [{filepath}] Not exists.")
-            return
-
-        try:
-            webpage = self._fetchLocalpage(filepath)
-        except HTTPError as error:
-            showWarning(
-                f"The remote server has returned an error: HTTP Error {error.code} ({error.reason})"
-            )
-            return
-        except ConnectionError:
-            showWarning("There was a problem connecting to the website.")
-            return
-
-        body = "\n".join(map(str, webpage.find("body").children))
-        source = self._settings["sourceFormat"].format(
-            date=date.today(), url=f'<a href="{filepath}">{filepath}</a>'
-        )
-
-        if not title:
-            title = webpage.title.string if webpage.title else filepath
-
-        if self._settings["prioEnabled"] and not priority:
-            priority = self._getPriority(title)
-
-        deck = self._createNote(title, body, source, priority)
-
-        if not silent:
-            tooltip(f"Added to deck: {deck}")
-
-        return deck
-
     def importFeed(self):
         url, accepted = getText("Enter URL:", title="Import Feed")
 
@@ -275,7 +234,7 @@ class Importer:
                 text = article.get("text")
                 href = article["href"]
                 if href not in importedArticle:
-                    deck = self.importLocalFile(href, priority, True, text)
+                    deck = self._importLocalFile(href, priority, True, text)
                     importedArticle.append(href)
                 else:
                     print(href, "Already imported, Skipping")
@@ -335,6 +294,47 @@ class Importer:
                 if listWidget.item(i).isSelected()
             ]
         return []
+
+    def _importLocalFile(self, filepath=None, priority=None, silent=False, title=None):
+        if not filepath:
+            filepath = getFile(None, "Import Local File", None, filter="*")
+
+        if not filepath:
+            return
+
+        filepath = Path(filepath).as_posix()  # Convert Windows Path to Linux
+        if not os.path.isfile(filepath):
+            showCritical(f"File [{filepath}] Not exists.")
+            return
+
+        try:
+            webpage = self._fetchLocalpage(filepath)
+        except HTTPError as error:
+            showWarning(
+                f"The remote server has returned an error: HTTP Error {error.code} ({error.reason})"
+            )
+            return
+        except ConnectionError:
+            showWarning("There was a problem connecting to the website.")
+            return
+
+        body = "\n".join(map(str, webpage.find("body").children))
+        source = self._settings["sourceFormat"].format(
+            date=date.today(), url=f'<a href="{filepath}">{filepath}</a>'
+        )
+
+        if not title:
+            title = webpage.title.string if webpage.title else filepath
+
+        if self._settings["prioEnabled"] and not priority:
+            priority = self._getPriority(title)
+
+        deck = self._createNote(title, body, source, priority)
+
+        if not silent:
+            tooltip(f"Added to deck: {deck}")
+
+        return deck
 
     def _fetchLocalpage(self, filepath):
         with open(filepath, "r", encoding="utf-8") as f:

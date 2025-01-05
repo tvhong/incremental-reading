@@ -65,61 +65,6 @@ class Importer:
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
 
-    def _fetchWebpage(self, url):
-        headers = {"User-Agent": self._settings["userAgent"]}
-        html = get(url, headers=headers).content
-        return self._cleanWebpage(html, url)
-
-    def _fetchLocalpage(self, filepath):
-        with open(filepath, "r", encoding="utf-8") as f:
-            html = f.read()
-            url = urlunsplit(("file", "", filepath, None, None))
-            return self._cleanWebpage(html, url, True)
-
-    def _cleanWebpage(self, html, url, local=False):
-        webpage = BeautifulSoup(html, "html.parser")
-
-        for tagName in self._settings["badTags"]:
-            for tag in webpage.find_all(tagName):
-                tag.decompose()
-
-        for c in webpage.find_all(text=lambda s: isinstance(s, Comment)):
-            c.extract()
-
-        for a in webpage.find_all("a"):
-            self._processATag(url, a)
-
-        for img in webpage.find_all("img"):
-            self._processImgTag(url, img, local)
-
-        for link in webpage.find_all("link"):
-            self._processLinkTag(url, link, local)
-
-        return webpage
-
-    def _createNote(self, title, text, source, priority=None):
-        if self._settings["importDeck"]:
-            deck = mw.col.decks.by_name(self._settings["importDeck"])
-            if not deck:
-                showWarning(
-                    "Destination deck no longer exists. " "Please update your settings."
-                )
-                return
-            did = deck["id"]
-        else:
-            did = mw.col.conf["curDeck"]
-
-        model = mw.col.models.by_name(self._settings["modelName"])
-        note = Note(mw.col, model)
-        setField(note, self._settings["titleField"], title)
-        setField(note, self._settings["textField"], text)
-        setField(note, self._settings["sourceField"], source)
-        if priority:
-            setField(note, self._settings["prioField"], priority)
-        note.note_type()["did"] = did
-        mw.col.addNote(note)
-        return mw.col.decks.get(did)["name"]
-
     def importWebpage(self, url=None, priority=None, silent=False, title=None):
         if not url:
             url, accepted = getText("Enter URL:", title="Import Webpage")
@@ -204,15 +149,6 @@ class Importer:
             tooltip(f"Added to deck: {deck}")
 
         return deck
-
-    def _getPriority(self, name=None):
-        if name:
-            prompt = "Select priority for <b>{}</b>".format(name)
-        else:
-            prompt = "Select priority for import"
-        return self._settings["priorities"][
-            chooseList(prompt, self._settings["priorities"])
-        ]
 
     def importFeed(self):
         url, accepted = getText("Enter URL:", title="Import Feed")
@@ -348,6 +284,15 @@ class Importer:
             mw.progress.finish()
             tooltip("Added {} item(s) to deck: {}".format(len(importedArticle), deck))
 
+    def _getPriority(self, name=None):
+        if name:
+            prompt = "Select priority for <b>{}</b>".format(name)
+        else:
+            prompt = "Select priority for import"
+        return self._settings["priorities"][
+            chooseList(prompt, self._settings["priorities"])
+        ]
+
     def _selectEntriesToImport(self, choices):
         if not choices:
             return []
@@ -428,3 +373,58 @@ class Importer:
             mediafilepath = mw.col.media.add_file(filepath)
             print(filepath, "===>", mediafilepath)
             link["href"] = mediafilepath
+
+    def _fetchWebpage(self, url):
+        headers = {"User-Agent": self._settings["userAgent"]}
+        html = get(url, headers=headers).content
+        return self._cleanWebpage(html, url)
+
+    def _fetchLocalpage(self, filepath):
+        with open(filepath, "r", encoding="utf-8") as f:
+            html = f.read()
+            url = urlunsplit(("file", "", filepath, None, None))
+            return self._cleanWebpage(html, url, True)
+
+    def _cleanWebpage(self, html, url, local=False):
+        webpage = BeautifulSoup(html, "html.parser")
+
+        for tagName in self._settings["badTags"]:
+            for tag in webpage.find_all(tagName):
+                tag.decompose()
+
+        for c in webpage.find_all(text=lambda s: isinstance(s, Comment)):
+            c.extract()
+
+        for a in webpage.find_all("a"):
+            self._processATag(url, a)
+
+        for img in webpage.find_all("img"):
+            self._processImgTag(url, img, local)
+
+        for link in webpage.find_all("link"):
+            self._processLinkTag(url, link, local)
+
+        return webpage
+
+    def _createNote(self, title, text, source, priority=None):
+        if self._settings["importDeck"]:
+            deck = mw.col.decks.by_name(self._settings["importDeck"])
+            if not deck:
+                showWarning(
+                    "Destination deck no longer exists. " "Please update your settings."
+                )
+                return
+            did = deck["id"]
+        else:
+            did = mw.col.conf["curDeck"]
+
+        model = mw.col.models.by_name(self._settings["modelName"])
+        note = Note(mw.col, model)
+        setField(note, self._settings["titleField"], title)
+        setField(note, self._settings["textField"], text)
+        setField(note, self._settings["sourceField"], source)
+        if priority:
+            setField(note, self._settings["prioField"], priority)
+        note.note_type()["did"] = did
+        mw.col.addNote(note)
+        return mw.col.decks.get(did)["name"]

@@ -336,6 +336,38 @@ class Importer:
             ]
         return []
 
+    def _fetchLocalpage(self, filepath):
+        with open(filepath, "r", encoding="utf-8") as f:
+            html = f.read()
+            url = urlunsplit(("file", "", filepath, None, None))
+            return self._cleanWebpage(html, url, True)
+
+    def _fetchWebpage(self, url):
+        headers = {"User-Agent": self._settings["userAgent"]}
+        html = get(url, headers=headers).content
+        return self._cleanWebpage(html, url)
+
+    def _cleanWebpage(self, html, url, local=False):
+        webpage = BeautifulSoup(html, "html.parser")
+
+        for tagName in self._settings["badTags"]:
+            for tag in webpage.find_all(tagName):
+                tag.decompose()
+
+        for c in webpage.find_all(text=lambda s: isinstance(s, Comment)):
+            c.extract()
+
+        for a in webpage.find_all("a"):
+            self._processATag(url, a)
+
+        for img in webpage.find_all("img"):
+            self._processImgTag(url, img, local)
+
+        for link in webpage.find_all("link"):
+            self._processLinkTag(url, link, local)
+
+        return webpage
+
     def _processATag(self, url: str, a: PageElement):
         if a.get("href"):
             if a["href"].startswith("#"):
@@ -373,38 +405,6 @@ class Importer:
             mediafilepath = mw.col.media.add_file(filepath)
             print(filepath, "===>", mediafilepath)
             link["href"] = mediafilepath
-
-    def _fetchWebpage(self, url):
-        headers = {"User-Agent": self._settings["userAgent"]}
-        html = get(url, headers=headers).content
-        return self._cleanWebpage(html, url)
-
-    def _fetchLocalpage(self, filepath):
-        with open(filepath, "r", encoding="utf-8") as f:
-            html = f.read()
-            url = urlunsplit(("file", "", filepath, None, None))
-            return self._cleanWebpage(html, url, True)
-
-    def _cleanWebpage(self, html, url, local=False):
-        webpage = BeautifulSoup(html, "html.parser")
-
-        for tagName in self._settings["badTags"]:
-            for tag in webpage.find_all(tagName):
-                tag.decompose()
-
-        for c in webpage.find_all(text=lambda s: isinstance(s, Comment)):
-            c.extract()
-
-        for a in webpage.find_all("a"):
-            self._processATag(url, a)
-
-        for img in webpage.find_all("img"):
-            self._processImgTag(url, img, local)
-
-        for link in webpage.find_all("link"):
-            self._processLinkTag(url, link, local)
-
-        return webpage
 
     def _createNote(self, title, text, source, priority=None):
         if self._settings["importDeck"]:

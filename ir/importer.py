@@ -172,7 +172,7 @@ class Importer:
 
         filepath = Path(filepath).as_posix()  # Convert Windows Path to Linux
         if not os.path.isfile(filepath):
-            showCritical(f"File[{filepath}] Not exists.")
+            showCritical(f"File [{filepath}] Not exists.")
             return
 
         try:

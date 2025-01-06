@@ -50,7 +50,7 @@ from aqt.utils import (
     showWarning,
     tooltip,
 )
-from bs4 import BeautifulSoup, Comment, PageElement, Tag
+from bs4 import BeautifulSoup
 from requests import get
 from requests.exceptions import ConnectionError
 
@@ -63,6 +63,7 @@ from .pocket import Pocket
 
 
 class Importer:
+    # Maybe use @property to get avoid pylint warnings?
     _pocket: Optional[Pocket] = None
     _web: Optional[Web] = None
     _settings: Optional[SettingsManager] = None

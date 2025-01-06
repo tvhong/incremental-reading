@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class ErrorLevel(Enum):
-    WARNING  = 1
+    WARNING = 1
     CRITICAL = 2
 
 

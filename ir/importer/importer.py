@@ -68,7 +68,6 @@ class Importer:
     _web: Optional[Web] = None
     _settings: Optional[SettingsManager] = None
 
-
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
         self._web = Web(self._settings)
@@ -342,23 +341,24 @@ class Importer:
 
     def _fetchWebpage(self, url: str) -> BeautifulSoup:
         if urlsplit(url).scheme not in ["http", "https"]:
-            raise ImporterError(ErrorLevel.CRITICAL, "Only HTTP requests are supported.")
+            raise ImporterError(
+                ErrorLevel.CRITICAL, "Only HTTP requests are supported."
+            )
 
         try:
-            html = get(url,
-                       headers={
-                            "User-Agent": self._settings["userAgent"]
-                        },
-                        timeout=5).content
+            html = get(
+                url, headers={"User-Agent": self._settings["userAgent"]}, timeout=5
+            ).content
             webpage = self._cleanWebpage(html, url)
         except HTTPError as error:
             raise ImporterError(
                 ErrorLevel.WARNING,
-                f"The remote server has returned an error: HTTP Error {error.code} ({error.reason})") from error
+                f"The remote server has returned an error: HTTP Error {error.code} ({error.reason})",
+            ) from error
         except ConnectionError as error:
             raise ImporterError(
-                ErrorLevel.WARNING,
-                "There was a problem connecting to the website.") from error
+                ErrorLevel.WARNING, "There was a problem connecting to the website."
+            ) from error
 
         return webpage
 

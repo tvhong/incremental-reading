@@ -102,8 +102,8 @@ class Importer:
             priority = self._getPriority(title)
 
         try:
+            # Fetch, parse, create note
             title, body, source = self._parseWebpage(url, title)
-
             deck = self._createNote(title, body, source, priority)
 
             if not silent:
@@ -294,19 +294,7 @@ class Importer:
         return []
 
     def _parseWebpage(self, url, title=None):
-        if urlsplit(url).scheme not in ["http", "https"]:
-            raise ImporterError(ErrorLevel.CRITICAL, "Only HTTP requests are supported.")
-
-        try:
-            webpage = self._fetchWebpage(url)
-        except HTTPError as error:
-            raise ImporterError(
-                ErrorLevel.WARNING,
-                f"The remote server has returned an error: HTTP Error {error.code} ({error.reason})")
-        except ConnectionError:
-            raise ImporterError(
-                ErrorLevel.WARNING,
-                "There was a problem connecting to the website.")
+        webpage = self._fetchWebpage(url)
 
         body = "\n".join(map(str, webpage.find("body").children))
         source = self._settings["sourceFormat"].format(
@@ -366,9 +354,26 @@ class Importer:
             return self._cleanWebpage(html, url, True)
 
     def _fetchWebpage(self, url):
-        headers = {"User-Agent": self._settings["userAgent"]}
-        html = get(url, headers=headers).content
-        return self._cleanWebpage(html, url)
+        if urlsplit(url).scheme not in ["http", "https"]:
+            raise ImporterError(ErrorLevel.CRITICAL, "Only HTTP requests are supported.")
+
+        try:
+            html = get(url,
+                       headers={
+                            "User-Agent": self._settings["userAgent"]
+                        },
+                        timeout=5).content
+            webpage = self._cleanWebpage(html, url)
+        except HTTPError as error:
+            raise ImporterError(
+                ErrorLevel.WARNING,
+                f"The remote server has returned an error: HTTP Error {error.code} ({error.reason})") from error
+        except ConnectionError as error:
+            raise ImporterError(
+                ErrorLevel.WARNING,
+                "There was a problem connecting to the website.") from error
+
+        return webpage
 
     def _cleanWebpage(self, html, url, local=False):
         webpage = BeautifulSoup(html, "html.parser")

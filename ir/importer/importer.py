@@ -13,16 +13,18 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-from enum import Enum
 import os
 from datetime import date
 from pathlib import Path
 from typing import Optional
 from urllib.error import HTTPError
-from urllib.parse import urljoin, urlsplit, urlunsplit
-from urllib.request import url2pathname
+from urllib.parse import urlsplit, urlunsplit
 
 from anki.notes import Note
+
+from ir.importer.web import Web
+
+from .exceptions import ErrorLevel, ImporterError
 
 try:
     from PyQt6.QtCore import Qt
@@ -60,25 +62,15 @@ from .epub import get_epub_toc
 from .pocket import Pocket
 
 
-class ErrorLevel(Enum):
-    WARNING  = 1
-    CRITICAL = 2
-
-
-class ImporterError(Exception):
-    def __init__(self, level: ErrorLevel, message: str) -> None:
-        super().__init__(message)
-
-        self.errorLevel = level
-        self.message = message
-
-
 class Importer:
-    _pocket = None
-    _settings: SettingsManager = None
+    _pocket: Optional[Pocket] = None
+    _web: Optional[Web] = None
+    _settings: Optional[SettingsManager] = None
+
 
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
+        self._web = Web(self._settings)
 
     def importWebpage(self, url=None, priority=None, silent=False, title=None):
         # Template:
@@ -104,9 +96,14 @@ class Importer:
 
         try:
             # Fetch, parse, create note
-            webpage = self._fetchWebpage(url)
-            title, body, source = self._parseWebpage(url, webpage, title)
-            deck = self._createNote(title, body, source, priority)
+            webpage = self._web.processWebpage(url)
+            source = self._settings["sourceFormat"].format(
+                date=date.today(), url=f'<a href="{url}">{url}</a>'
+            )
+            if not title:
+                title = webpage.title
+
+            deck = self._createNote(title, webpage.body, source, priority)
 
             if not silent:
                 tooltip(f"Added to deck: {deck}")
@@ -295,17 +292,6 @@ class Importer:
             ]
         return []
 
-    def _parseWebpage(self, url: str, webpage: BeautifulSoup, title: Optional[str]=None):
-        body = "\n".join(map(str, webpage.find("body").children))
-        source = self._settings["sourceFormat"].format(
-            date=date.today(), url=f'<a href="{url}">{url}</a>'
-        )
-
-        if not title:
-            title = webpage.title.string if webpage.title else url
-
-        return (title, body, source)
-
     def _importLocalFile(self, filepath=None, priority=None, silent=False, title=None):
         if not filepath:
             filepath = getFile(None, "Import Local File", None, filter="*")
@@ -374,65 +360,6 @@ class Importer:
                 "There was a problem connecting to the website.") from error
 
         return webpage
-
-    def _cleanWebpage(self, html, url, local=False):
-        webpage = BeautifulSoup(html, "html.parser")
-
-        for tagName in self._settings["badTags"]:
-            for tag in webpage.find_all(tagName):
-                tag.decompose()
-
-        for c in webpage.find_all(text=lambda s: isinstance(s, Comment)):
-            c.extract()
-
-        for a in webpage.find_all("a"):
-            self._processATag(url, a)
-
-        for img in webpage.find_all("img"):
-            self._processImgTag(url, img, local)
-
-        for link in webpage.find_all("link"):
-            self._processLinkTag(url, link, local)
-
-        return webpage
-
-    def _processATag(self, url: str, a: PageElement):
-        if a.get("href"):
-            if a["href"].startswith("#"):
-                # Need to override onclick for named anchor to work
-                # See https://forums.ankiweb.net/t/links-to-named-anchors-malfunction/5157
-                if not a.get("onclick"):
-                    named_anchor = a["href"][1:]  # Remove first hash
-                    a["href"] = "javascript:;"
-                    a["onclick"] = f"document.location.hash='{named_anchor}';"
-            else:
-                a["href"] = urljoin(url, a["href"])
-
-    def _processImgTag(self, url: str, img: Tag, local=False):
-        """
-        Copy image from local storage to Anki media folder and replace src with local path
-        """
-        if not img.get("src"):
-            return
-
-        img["src"] = urljoin(url, img["src"])
-        if local and urlsplit(img["src"]).scheme == "file":
-            filepath = url2pathname(urlsplit(img["src"]).path)
-            mediafilepath = mw.col.media.add_file(filepath)
-            img["src"] = mediafilepath
-
-        # Some webpages send broken base64-encoded URI in srcset attribute.
-        # Remove them for now.
-        del img["srcset"]
-
-    def _processLinkTag(self, url: str, link: PageElement, local=False):
-        if link.get("href"):
-            link["href"] = urljoin(url, link.get("href", ""))
-        if local and urlsplit(link["href"]).scheme == "file":
-            filepath = url2pathname(urlsplit(link["href"]).path)
-            mediafilepath = mw.col.media.add_file(filepath)
-            print(filepath, "===>", mediafilepath)
-            link["href"] = mediafilepath
 
     def _createNote(self, title, text, source, priority=None):
         if self._settings["importDeck"]:

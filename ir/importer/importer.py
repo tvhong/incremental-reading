@@ -13,6 +13,7 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+from enum import Enum
 import os
 from datetime import date
 from pathlib import Path
@@ -58,6 +59,19 @@ from .epub import get_epub_toc
 from .pocket import Pocket
 
 
+class ErrorLevel(Enum):
+    WARNING  = 1
+    CRITICAL = 2
+
+
+class ImporterError(Exception):
+    def __init__(self, level: ErrorLevel, message: str) -> None:
+        super().__init__(message)
+
+        self.errorLevel = level
+        self.message = message
+
+
 class Importer:
     _pocket = None
     _settings: SettingsManager = None
@@ -66,6 +80,13 @@ class Importer:
         self._settings = settings
 
     def importWebpage(self, url=None, priority=None, silent=False, title=None):
+        # Template:
+        # 1. Get the URL and maybe a list of entries
+        # 2. Download all entries
+        # 3. Get prirotiy
+        # 4. Show progress
+        # 5. Import each entry and update progress bar
+        # 6. Finish progress bar
         if not url:
             url, accepted = getText("Enter URL:", title="Import Webpage")
         else:
@@ -76,31 +97,18 @@ class Importer:
 
         if not urlsplit(url).scheme:
             url = "http://" + url
-        elif urlsplit(url).scheme not in ["http", "https"]:
-            showCritical("Only HTTP requests are supported.")
-            return
-
-        try:
-            webpage = self._fetchWebpage(url)
-        except HTTPError as error:
-            showWarning(
-                f"The remote server has returned an error: HTTP Error {error.code} ({error.reason})"
-            )
-            return
-        except ConnectionError:
-            showWarning("There was a problem connecting to the website.")
-            return
-
-        body = "\n".join(map(str, webpage.find("body").children))
-        source = self._settings["sourceFormat"].format(
-            date=date.today(), url='<a href="%s">%s</a>' % (url, url)
-        )
-
-        if not title:
-            title = webpage.title.string if webpage.title else url
 
         if self._settings["prioEnabled"] and not priority:
             priority = self._getPriority(title)
+
+        try:
+            title, body, source = self._importWebpage(url, title)
+        except ImporterError as e:
+            if e.errorLevel == ErrorLevel.CRITICAL:
+                showCritical(e.message)
+            elif e.errorLevel == ErrorLevel.WARNING:
+                showWarning(e.message)
+            return
 
         deck = self._createNote(title, body, source, priority)
 
@@ -294,6 +302,31 @@ class Importer:
                 if listWidget.item(i).isSelected()
             ]
         return []
+
+    def _importWebpage(self, url, title=None):
+        if urlsplit(url).scheme not in ["http", "https"]:
+            raise ImporterError(ErrorLevel.CRITICAL, "Only HTTP requests are supported.")
+
+        try:
+            webpage = self._fetchWebpage(url)
+        except HTTPError as error:
+            raise ImporterError(
+                ErrorLevel.WARNING,
+                f"The remote server has returned an error: HTTP Error {error.code} ({error.reason})")
+        except ConnectionError:
+            raise ImporterError(
+                ErrorLevel.WARNING,
+                "There was a problem connecting to the website.")
+
+        body = "\n".join(map(str, webpage.find("body").children))
+        source = self._settings["sourceFormat"].format(
+            date=date.today(), url=f'<a href="{url}">{url}</a>'
+        )
+
+        if not title:
+            title = webpage.title.string if webpage.title else url
+
+        return (title, body, source)
 
     def _importLocalFile(self, filepath=None, priority=None, silent=False, title=None):
         if not filepath:

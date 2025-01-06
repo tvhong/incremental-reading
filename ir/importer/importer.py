@@ -102,7 +102,7 @@ class Importer:
             priority = self._getPriority(title)
 
         try:
-            title, body, source = self._importWebpage(url, title)
+            title, body, source = self._parseWebpage(url, title)
 
             deck = self._createNote(title, body, source, priority)
 
@@ -129,7 +129,6 @@ class Importer:
         priority = self._getPriority() if self._settings["prioEnabled"] else None
 
         log = self._settings["feedLog"]
-
         try:
             feed = parse(
                 url,
@@ -294,7 +293,7 @@ class Importer:
             ]
         return []
 
-    def _importWebpage(self, url, title=None):
+    def _parseWebpage(self, url, title=None):
         if urlsplit(url).scheme not in ["http", "https"]:
             raise ImporterError(ErrorLevel.CRITICAL, "Only HTTP requests are supported.")
 

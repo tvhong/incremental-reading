@@ -17,6 +17,7 @@ from enum import Enum
 import os
 from datetime import date
 from pathlib import Path
+from typing import Optional
 from urllib.error import HTTPError
 from urllib.parse import urljoin, urlsplit, urlunsplit
 from urllib.request import url2pathname
@@ -103,7 +104,8 @@ class Importer:
 
         try:
             # Fetch, parse, create note
-            title, body, source = self._parseWebpage(url, title)
+            webpage = self._fetchWebpage(url)
+            title, body, source = self._parseWebpage(url, webpage, title)
             deck = self._createNote(title, body, source, priority)
 
             if not silent:
@@ -293,9 +295,7 @@ class Importer:
             ]
         return []
 
-    def _parseWebpage(self, url, title=None):
-        webpage = self._fetchWebpage(url)
-
+    def _parseWebpage(self, url: str, webpage: BeautifulSoup, title: Optional[str]=None):
         body = "\n".join(map(str, webpage.find("body").children))
         source = self._settings["sourceFormat"].format(
             date=date.today(), url=f'<a href="{url}">{url}</a>'
@@ -353,7 +353,7 @@ class Importer:
             url = urlunsplit(("file", "", filepath, None, None))
             return self._cleanWebpage(html, url, True)
 
-    def _fetchWebpage(self, url):
+    def _fetchWebpage(self, url: str) -> BeautifulSoup:
         if urlsplit(url).scheme not in ["http", "https"]:
             raise ImporterError(ErrorLevel.CRITICAL, "Only HTTP requests are supported.")
 

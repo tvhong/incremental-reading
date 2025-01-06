@@ -126,6 +126,8 @@ class Importer:
         if not urlsplit(url).scheme:
             url = "http://" + url
 
+        priority = self._getPriority() if self._settings["prioEnabled"] else None
+
         log = self._settings["feedLog"]
 
         try:
@@ -144,11 +146,6 @@ class Importer:
                 "The remote server has returned an unexpected status: "
                 "{}".format(feed["status"])
             )
-
-        if self._settings["prioEnabled"]:
-            priority = self._getPriority()
-        else:
-            priority = None
 
         entries = [
             {"text": e["title"], "data": e}
@@ -190,10 +187,7 @@ class Importer:
 
         selected = self._selectEntriesToImport(articles)
 
-        if self._settings["prioEnabled"]:
-            priority = self._getPriority()
-        else:
-            priority = None
+        priority = self._getPriority() if self._settings["prioEnabled"] else None
 
         if selected:
             n = len(selected)
@@ -227,10 +221,7 @@ class Importer:
             return
         selected = self._selectEntriesToImport(articles)
 
-        if self._settings["prioEnabled"]:
-            priority = self._getPriority()
-        else:
-            priority = None
+        priority = self._getPriority() if self._settings["prioEnabled"] else None
 
         if selected:
             n = len(selected)

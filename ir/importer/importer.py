@@ -103,19 +103,19 @@ class Importer:
 
         try:
             title, body, source = self._importWebpage(url, title)
+
+            deck = self._createNote(title, body, source, priority)
+
+            if not silent:
+                tooltip(f"Added to deck: {deck}")
+
+            return deck
         except ImporterError as e:
             if e.errorLevel == ErrorLevel.CRITICAL:
                 showCritical(e.message)
             elif e.errorLevel == ErrorLevel.WARNING:
                 showWarning(e.message)
             return
-
-        deck = self._createNote(title, body, source, priority)
-
-        if not silent:
-            tooltip(f"Added to deck: {deck}")
-
-        return deck
 
     def importFeed(self):
         url, accepted = getText("Enter URL:", title="Import Feed")

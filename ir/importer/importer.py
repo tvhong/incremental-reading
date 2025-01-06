@@ -442,9 +442,9 @@ class Importer:
                     "Destination deck no longer exists. " "Please update your settings."
                 )
                 return
-            did = deck["id"]
+            deckId = deck["id"]
         else:
-            did = mw.col.conf["curDeck"]
+            deckId = mw.col.conf["curDeck"]
 
         model = mw.col.models.by_name(self._settings["modelName"])
         note = Note(mw.col, model)
@@ -453,6 +453,8 @@ class Importer:
         setField(note, self._settings["sourceField"], source)
         if priority:
             setField(note, self._settings["prioField"], priority)
-        note.note_type()["did"] = did
+
+        note.note_type()["did"] = deckId
         mw.col.addNote(note)
-        return mw.col.decks.get(did)["name"]
+
+        return mw.col.decks.get(deckId)["name"]

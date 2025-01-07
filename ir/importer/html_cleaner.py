@@ -1,6 +1,7 @@
 from urllib.parse import urljoin, urlsplit
 from urllib.request import url2pathname
 from bs4 import BeautifulSoup, Comment, Tag
+from aqt import mw
 
 
 class HtmlCleaner:
@@ -49,6 +50,7 @@ class HtmlCleaner:
         img["src"] = urljoin(url, img["src"])
         if local and urlsplit(img["src"]).scheme == "file":
             filepath = url2pathname(urlsplit(img["src"]).path)
+            # TODO: remove mw reference
             mediafilepath = mw.col.media.add_file(filepath)
             img["src"] = mediafilepath
 

@@ -93,26 +93,26 @@ class Importer:
             priority = self._getPriority(title)
 
         try:
-            # Fetch, parse, create note
             webpage = self._web.processWebpage(url)
-            source = self._settings["sourceFormat"].format(
-                date=date.today(), url=f'<a href="{url}">{url}</a>'
-            )
-            if not title:
-                title = webpage.title
-
-            deck = self._createNote(title, webpage.body, source, priority)
-
-            if not silent:
-                tooltip(f"Added to deck: {deck}")
-
-            return deck
         except ImporterError as e:
             if e.errorLevel == ErrorLevel.CRITICAL:
                 showCritical(e.message)
             elif e.errorLevel == ErrorLevel.WARNING:
                 showWarning(e.message)
             return
+
+        source = self._settings["sourceFormat"].format(
+            date=date.today(), url=f'<a href="{url}">{url}</a>'
+        )
+        if not title:
+            title = webpage.title
+
+        deck = self._createNote(title, webpage.body, source, priority)
+
+        if not silent:
+            tooltip(f"Added to deck: {deck}")
+
+        return deck
 
     def importFeed(self):
         url, accepted = getText("Enter URL:", title="Import Feed")

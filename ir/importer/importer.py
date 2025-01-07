@@ -327,7 +327,7 @@ class Importer:
         with open(filepath, "r", encoding="utf-8") as f:
             html = f.read()
             url = urlunsplit(("file", "", filepath, None, None))
-            return self._htmlCleaner.cleanWebpage(html, url, True)
+            return self._htmlCleaner.clean(html, url, True)
 
     def _createNote(self, title, text, source, priority=None):
         if self._settings["importDeck"]:

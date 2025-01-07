@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup, Comment, Tag
 class HtmlCleaner:
     _BAD_TAGS = ["iframe", "script"]
 
-    def cleanWebpage(self, html: bytes, url: str, local: bool = False):
+    def clean(self, html: bytes, url: str, local: bool = False):
         webpage = BeautifulSoup(html, "html.parser")
 
         for tagName in self._BAD_TAGS:

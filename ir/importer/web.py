@@ -25,7 +25,7 @@ class Web:
 
     def processWebpage(self, url: str) -> Webpage:
         html = self._fetchWebpage(url)
-        page = self._htmlCleaner.cleanWebpage(html, url)
+        page = self._htmlCleaner.clean(html, url)
         return self._parseWebpage(url, page)
 
     def _fetchWebpage(self, url: str) -> bytes:

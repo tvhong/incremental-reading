@@ -97,9 +97,9 @@ class Importer:
     def importWebpage(self, url=None, priority=None, silent=False, title=None):
         # Template:
         # 1. Get the URL and maybe a list of entries
-        # 2. Download all entries
-        # 3. Get prirotiy
-        # 4. Show progress
+        # 2. Get prirotiy
+        # 3. Show progress bar
+        # 4. Download all entries
         # 5. Import each entry and update progress bar
         # 6. Finish progress bar
         if not url:
@@ -311,10 +311,7 @@ class Importer:
             ]
         return []
 
-    def _importLocalFile(self, filepath=None, priority=None, silent=False, title=None):
-        if not filepath:
-            filepath = getFile(None, "Import Local File", None, filter="*")
-
+    def _importLocalFile(self, filepath: str, priority: str, silent: bool, title: Optional[str] = None):
         if not filepath:
             return
 
@@ -332,9 +329,6 @@ class Importer:
 
         if not title:
             title = localPage.title.string if localPage.title else filepath
-
-        if self.settings["prioEnabled"] and not priority:
-            priority = self._getPriority(title)
 
         deck = self._createNote(title, body, source, priority)
 

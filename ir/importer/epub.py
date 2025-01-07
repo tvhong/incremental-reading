@@ -184,9 +184,8 @@ def _get_extract_dir(filename):
 
 def _unzip_epub(file_path):
     extract_dir = _get_extract_dir(file_path)
-    if not os.path.exists(extract_dir):
-        with zipfile.ZipFile(file_path, "r") as zip_ref:
-            zip_ref.extractall(extract_dir)
+    with zipfile.ZipFile(file_path, "r") as zip_ref:
+        zip_ref.extractall(extract_dir)
     return extract_dir
 
 

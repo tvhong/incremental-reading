@@ -17,11 +17,11 @@ import os
 from datetime import date
 from pathlib import Path
 from typing import Optional
-from urllib.error import HTTPError
 from urllib.parse import urlsplit, urlunsplit
 
 from anki.notes import Note
 
+from ir.importer.html_cleaner import HtmlCleaner
 from ir.importer.web import Web
 
 from .exceptions import ErrorLevel, ImporterError
@@ -64,6 +64,7 @@ class Importer:
     # Maybe use @property to get avoid pylint warnings?
     _pocket: Optional[Pocket] = None
     _web: Optional[Web] = None
+    _htmlCleaner: Optional[HtmlCleaner] = None
     _settings: Optional[SettingsManager] = None
 
     def changeProfile(self, settings: SettingsManager):
@@ -326,7 +327,7 @@ class Importer:
         with open(filepath, "r", encoding="utf-8") as f:
             html = f.read()
             url = urlunsplit(("file", "", filepath, None, None))
-            return self._cleanWebpage(html, url, True)
+            return self._htmlCleaner.cleanWebpage(html, url, True)
 
     def _createNote(self, title, text, source, priority=None):
         if self._settings["importDeck"]:

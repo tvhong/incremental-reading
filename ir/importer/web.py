@@ -1,10 +1,8 @@
 from urllib.error import HTTPError
-from urllib.parse import urljoin, urlsplit
-from urllib.request import url2pathname
+from urllib.parse import urlsplit
 from attr import dataclass
-from bs4 import BeautifulSoup, Comment, Tag
+from bs4 import BeautifulSoup
 from requests import get
-from aqt import mw
 
 from ir.settings import SettingsManager
 from .exceptions import ErrorLevel, ImporterError

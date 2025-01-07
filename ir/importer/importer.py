@@ -302,24 +302,15 @@ class Importer:
             showCritical(f"File [{filepath}] Not exists.")
             return
 
-        try:
-            webpage = self._fetchLocalpage(filepath)
-        except HTTPError as error:
-            showWarning(
-                f"The remote server has returned an error: HTTP Error {error.code} ({error.reason})"
-            )
-            return
-        except ConnectionError:
-            showWarning("There was a problem connecting to the website.")
-            return
+        localPage = self._fetchLocalPage(filepath)
 
-        body = "\n".join(map(str, webpage.find("body").children))
+        body = "\n".join(map(str, localPage.find("body").children))
         source = self._settings["sourceFormat"].format(
             date=date.today(), url=f'<a href="{filepath}">{filepath}</a>'
         )
 
         if not title:
-            title = webpage.title.string if webpage.title else filepath
+            title = localPage.title.string if localPage.title else filepath
 
         if self._settings["prioEnabled"] and not priority:
             priority = self._getPriority(title)
@@ -331,7 +322,7 @@ class Importer:
 
         return deck
 
-    def _fetchLocalpage(self, filepath):
+    def _fetchLocalPage(self, filepath):
         with open(filepath, "r", encoding="utf-8") as f:
             html = f.read()
             url = urlunsplit(("file", "", filepath, None, None))

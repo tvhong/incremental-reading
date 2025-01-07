@@ -50,7 +50,6 @@ from aqt.utils import (
     showWarning,
     tooltip,
 )
-from requests.exceptions import ConnectionError
 
 from ir.lib.feedparser import parse
 from ir.settings import SettingsManager
@@ -94,6 +93,7 @@ class Importer:
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
         self._web = Web(self._settings)
+        self._pocket = Pocket()
 
     def importWebpage(self, url=None, priority=None, silent=False, title=None):
         # Template:
@@ -199,10 +199,7 @@ class Importer:
         tooltip("Added {} item(s) to deck: {}".format(n, deck))
 
     def importPocket(self):
-        if not self._pocket:
-            self._pocket = Pocket()
-
-        articles = self._pocket.getArticles()
+        articles = self.pocket.getArticles()
         if not articles:
             return
 
@@ -221,7 +218,7 @@ class Importer:
                     article["given_url"], priority, True, article["resolved_title"]
                 )
                 if self.settings["pocketArchive"]:
-                    self._pocket.archive(article)
+                    self.pocket.archive(article)
                 mw.progress.update(value=i)
 
             mw.progress.finish()

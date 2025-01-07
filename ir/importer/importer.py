@@ -92,6 +92,7 @@ class Importer:
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
         self._web = Web(self._settings)
+        self._htmlCleaner = HtmlCleaner()
         self._pocket = Pocket()
 
     def importWebpage(self, url=None, priority=None, silent=False, title=None):

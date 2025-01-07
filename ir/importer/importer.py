@@ -67,6 +67,30 @@ class Importer:
     _htmlCleaner: Optional[HtmlCleaner] = None
     _settings: Optional[SettingsManager] = None
 
+    @property
+    def pocket(self) -> Pocket:
+        if not self._pocket:
+            raise ValueError("Pocket is not initialized")
+        return self._pocket
+
+    @property
+    def web(self) -> Web:
+        if not self._web:
+            raise ValueError("Web is not initialized")
+        return self._web
+    
+    @property
+    def htmlCleaner(self) -> HtmlCleaner:
+        if not self._htmlCleaner:
+            raise ValueError("HtmlCleaner is not initialized")
+        return self._htmlCleaner
+    
+    @property
+    def settings(self) -> SettingsManager:
+        if not self._settings:
+            raise ValueError("Settings is not initialized")
+        return self._settings
+
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
         self._web = Web(self._settings)
@@ -90,11 +114,11 @@ class Importer:
         if not urlsplit(url).scheme:
             url = "http://" + url
 
-        if self._settings["prioEnabled"] and not priority:
+        if self.settings["prioEnabled"] and not priority:
             priority = self._getPriority(title)
 
         try:
-            webpage = self._web.processWebpage(url)
+            webpage = self.web.processWebpage(url)
         except ImporterError as e:
             if e.errorLevel == ErrorLevel.CRITICAL:
                 showCritical(e.message)
@@ -102,7 +126,7 @@ class Importer:
                 showWarning(e.message)
             return
 
-        source = self._settings["sourceFormat"].format(
+        source = self.settings["sourceFormat"].format(
             date=date.today(), url=f'<a href="{url}">{url}</a>'
         )
         if not title:
@@ -124,19 +148,19 @@ class Importer:
         if not urlsplit(url).scheme:
             url = "http://" + url
 
-        priority = self._getPriority() if self._settings["prioEnabled"] else None
+        priority = self._getPriority() if self.settings["prioEnabled"] else None
 
-        log = self._settings["feedLog"]
+        log = self.settings["feedLog"]
         try:
             feed = parse(
                 url,
-                agent=self._settings["userAgent"],
+                agent=self.settings["userAgent"],
                 etag=log[url]["etag"],
                 modified=log[url]["modified"],
             )
         except KeyError:
             log[url] = {"downloaded": []}
-            feed = parse(url, agent=self._settings["userAgent"])
+            feed = parse(url, agent=self.settings["userAgent"])
 
         if feed["status"] not in [200, 301, 302]:
             showWarning(
@@ -184,7 +208,7 @@ class Importer:
 
         selected = self._selectEntriesToImport(articles)
 
-        priority = self._getPriority() if self._settings["prioEnabled"] else None
+        priority = self._getPriority() if self.settings["prioEnabled"] else None
 
         if selected:
             n = len(selected)
@@ -196,7 +220,7 @@ class Importer:
                 deck = self.importWebpage(
                     article["given_url"], priority, True, article["resolved_title"]
                 )
-                if self._settings["pocketArchive"]:
+                if self.settings["pocketArchive"]:
                     self._pocket.archive(article)
                 mw.progress.update(value=i)
 
@@ -218,7 +242,7 @@ class Importer:
             return
         selected = self._selectEntriesToImport(articles)
 
-        priority = self._getPriority() if self._settings["prioEnabled"] else None
+        priority = self._getPriority() if self.settings["prioEnabled"] else None
 
         if selected:
             n = len(selected)
@@ -244,8 +268,8 @@ class Importer:
             prompt = "Select priority for <b>{}</b>".format(name)
         else:
             prompt = "Select priority for import"
-        return self._settings["priorities"][
-            chooseList(prompt, self._settings["priorities"])
+        return self.settings["priorities"][
+            chooseList(prompt, self.settings["priorities"])
         ]
 
     def _selectEntriesToImport(self, choices):
@@ -306,14 +330,14 @@ class Importer:
         localPage = self._fetchLocalPage(filepath)
 
         body = "\n".join(map(str, localPage.find("body").children))
-        source = self._settings["sourceFormat"].format(
+        source = self.settings["sourceFormat"].format(
             date=date.today(), url=f'<a href="{filepath}">{filepath}</a>'
         )
 
         if not title:
             title = localPage.title.string if localPage.title else filepath
 
-        if self._settings["prioEnabled"] and not priority:
+        if self.settings["prioEnabled"] and not priority:
             priority = self._getPriority(title)
 
         deck = self._createNote(title, body, source, priority)
@@ -327,11 +351,11 @@ class Importer:
         with open(filepath, "r", encoding="utf-8") as f:
             html = f.read()
             url = urlunsplit(("file", "", filepath, None, None))
-            return self._htmlCleaner.clean(html, url, True)
+            return self.htmlCleaner.clean(html, url, True)
 
     def _createNote(self, title, text, source, priority=None):
-        if self._settings["importDeck"]:
-            deck = mw.col.decks.by_name(self._settings["importDeck"])
+        if self.settings["importDeck"]:
+            deck = mw.col.decks.by_name(self.settings["importDeck"])
             if not deck:
                 showWarning(
                     "Destination deck no longer exists. " "Please update your settings."
@@ -341,13 +365,13 @@ class Importer:
         else:
             deckId = mw.col.conf["curDeck"]
 
-        model = mw.col.models.by_name(self._settings["modelName"])
+        model = mw.col.models.by_name(self.settings["modelName"])
         note = Note(mw.col, model)
-        setField(note, self._settings["titleField"], title)
-        setField(note, self._settings["textField"], text)
-        setField(note, self._settings["sourceField"], source)
+        setField(note, self.settings["titleField"], title)
+        setField(note, self.settings["textField"], text)
+        setField(note, self.settings["sourceField"], source)
         if priority:
-            setField(note, self._settings["prioField"], priority)
+            setField(note, self.settings["prioField"], priority)
 
         note.note_type()["did"] = deckId
         mw.col.addNote(note)

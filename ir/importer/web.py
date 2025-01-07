@@ -2,7 +2,7 @@ from urllib.error import HTTPError
 from urllib.parse import urljoin, urlsplit
 from urllib.request import url2pathname
 from attr import dataclass
-from bs4 import BeautifulSoup, Comment, PageElement, Tag
+from bs4 import BeautifulSoup, Comment, Tag
 from requests import get
 from aqt import mw
 
@@ -22,10 +22,11 @@ class Web:
         self._settings = settings
 
     def processWebpage(self, url: str) -> Webpage:
-        webpage = self._fetchWebpage(url)
-        return self._parseWebpage(url, webpage)
+        html = self._fetchWebpage(url)
+        page = self._cleanWebpage(html, url)
+        return self._parseWebpage(url, page)
 
-    def _fetchWebpage(self, url: str) -> BeautifulSoup:
+    def _fetchWebpage(self, url: str) -> bytes:
         if urlsplit(url).scheme not in ["http", "https"]:
             raise ImporterError(
                 ErrorLevel.CRITICAL, "Only HTTP requests are supported."
@@ -35,7 +36,6 @@ class Web:
             html = get(
                 url, headers={"User-Agent": self._settings["userAgent"]}, timeout=5
             ).content
-            webpage = self._cleanWebpage(html, url)
         except HTTPError as error:
             raise ImporterError(
                 ErrorLevel.WARNING,
@@ -46,7 +46,7 @@ class Web:
                 ErrorLevel.WARNING, "There was a problem connecting to the website."
             ) from error
 
-        return webpage
+        return html
 
     def _parseWebpage(self, url: str, webpage: BeautifulSoup):
         body = "\n".join(map(str, webpage.find("body").children))
@@ -54,7 +54,7 @@ class Web:
 
         return Webpage(url, title, body)
 
-    def _cleanWebpage(self, html, url, local=False):
+    def _cleanWebpage(self, html: bytes, url: str, local: bool = False):
         webpage = BeautifulSoup(html, "html.parser")
 
         for tagName in self._settings["badTags"]:
@@ -75,7 +75,7 @@ class Web:
 
         return webpage
 
-    def _processATag(self, url: str, a: PageElement):
+    def _processATag(self, url: str, a: Tag):
         if a.get("href"):
             if a["href"].startswith("#"):
                 # Need to override onclick for named anchor to work
@@ -87,7 +87,7 @@ class Web:
             else:
                 a["href"] = urljoin(url, a["href"])
 
-    def _processImgTag(self, url: str, img: Tag, local=False):
+    def _processImgTag(self, url: str, img: Tag, local: bool = False):
         """
         Copy image from local storage to Anki media folder and replace src with local path
         """
@@ -104,7 +104,7 @@ class Web:
         # Remove them for now.
         del img["srcset"]
 
-    def _processLinkTag(self, url: str, link: Tag, local=False):
+    def _processLinkTag(self, url: str, link: Tag, local: bool = False):
         if link.get("href"):
             link["href"] = urljoin(url, link.get("href", ""))
         if local and urlsplit(link["href"]).scheme == "file":

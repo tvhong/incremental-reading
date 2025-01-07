@@ -250,7 +250,7 @@ class Importer:
                 text = article.get("text")
                 href = article["href"]
                 if href not in importedArticle:
-                    deck = self._importLocalFile(href, priority, True, text)
+                    deck = self._importLocalFile(href, priority, text)
                     importedArticle.append(href)
                 else:
                     print(href, "Already imported, Skipping")
@@ -311,7 +311,7 @@ class Importer:
             ]
         return []
 
-    def _importLocalFile(self, filepath: str, priority: str, silent: bool, title: Optional[str] = None):
+    def _importLocalFile(self, filepath: str, priority: str, title: Optional[str] = None):
         if not filepath:
             return
 
@@ -331,9 +331,6 @@ class Importer:
             title = localPage.title.string if localPage.title else filepath
 
         deck = self._createNote(title, body, source, priority)
-
-        if not silent:
-            tooltip(f"Added to deck: {deck}")
 
         return deck
 

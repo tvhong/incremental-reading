@@ -60,7 +60,6 @@ from .pocket import Pocket
 
 
 class Importer:
-    # Maybe use @property to get avoid pylint warnings?
     _pocket: Optional[Pocket] = None
     _web: Optional[Web] = None
     _htmlCleaner: Optional[HtmlCleaner] = None
@@ -77,13 +76,13 @@ class Importer:
         if not self._web:
             raise ValueError("Web is not initialized")
         return self._web
-    
+
     @property
     def htmlCleaner(self) -> HtmlCleaner:
         if not self._htmlCleaner:
             raise ValueError("HtmlCleaner is not initialized")
         return self._htmlCleaner
-    
+
     @property
     def settings(self) -> SettingsManager:
         if not self._settings:
@@ -165,7 +164,7 @@ class Importer:
         if feed["status"] not in [200, 301, 302]:
             showWarning(
                 "The remote server has returned an unexpected status: "
-                "{}".format(feed["status"])
+                f'{feed["status"]}'
             )
 
         entries = [
@@ -196,7 +195,7 @@ class Importer:
         log[url]["modified"] = feed.modified if hasattr(feed, "modified") else ""
 
         mw.progress.finish()
-        tooltip("Added {} item(s) to deck: {}".format(n, deck))
+        tooltip(f"Added {n} item(s) to deck: {deck}")
 
     def importPocket(self):
         articles = self.pocket.getArticles()
@@ -222,7 +221,7 @@ class Importer:
                 mw.progress.update(value=i)
 
             mw.progress.finish()
-            tooltip("Added {} item(s) to deck: {}".format(n, deck))
+            tooltip(f"Added {n} item(s) to deck: {deck}")
 
     def importEpub(self, epub_file_path=None):
         if not epub_file_path:
@@ -258,11 +257,11 @@ class Importer:
                 mw.progress.update(value=i)
 
             mw.progress.finish()
-            tooltip("Added {} item(s) to deck: {}".format(len(importedArticle), deck))
+            tooltip(f"Added {len(importedArticle)} item(s) to deck: {deck}")
 
     def _getPriority(self, name=None):
         if name:
-            prompt = "Select priority for <b>{}</b>".format(name)
+            prompt = f"Select priority for <b>{name}</b>"
         else:
             prompt = "Select priority for import"
         return self.settings["priorities"][

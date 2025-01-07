@@ -312,7 +312,7 @@ class Importer:
             ]
         return []
 
-    def _importLocalFile(self, filepath: str, priority: str, title: Optional[str] = None):
+    def _importLocalFile(self, filepath: str, priority: str, title: str):
         if not filepath:
             return
 

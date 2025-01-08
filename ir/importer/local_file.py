@@ -9,8 +9,6 @@ from .html_cleaner import HtmlCleaner
 
 @dataclass
 class ParsedFile:
-    # TODO: remove title
-    title: str
     body: str
 
 
@@ -42,6 +40,4 @@ class LocalFile:
 
     def _parseFile(self, filepath: str, localPage: BeautifulSoup):
         body = "\n".join(map(str, localPage.find("body").children))
-        title = localPage.title.string if localPage.title else filepath
-
-        return ParsedFile(title, body)
+        return ParsedFile(body)

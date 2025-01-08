@@ -269,12 +269,11 @@ class Importer:
             mw.progress.finish()
             tooltip(f"Added {len(importedArticle)} item(s) to deck: {deck}")
 
-    def _getPriority(self, name=None):
+    def _getPriority(self, name=None) -> str:
         if name:
             prompt = f"Select priority for <b>{name}</b>"
         else:
             prompt = "Select priority for import"
-        # TODO: is this an int?
         return self.settings["priorities"][
             chooseList(prompt, self.settings["priorities"])
         ]

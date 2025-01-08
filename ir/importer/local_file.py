@@ -20,7 +20,7 @@ class LocalFile:
     def __init__(self, settings: SettingsManager) -> None:
         self._settings = settings
         self._htmlCleaner = HtmlCleaner()
-        
+
     def process(self, filepath: str) -> ParsedFile:
         if not filepath:
             raise ValueError("Filepath is empty")
@@ -31,15 +31,16 @@ class LocalFile:
                 ErrorLevel.CRITICAL, f"File [{filepath}] Not exists."
             )
 
-        localPage = self._fetchLocalPage(filepath)
+        html = self._fetchLocalPage(filepath)
 
-        return self._parseFile(filepath, localPage)
+        url = urlunsplit(("file", "", filepath, None, None))
+        page = self._htmlCleaner.clean(html, url, True)
 
-    def _fetchLocalPage(self, filepath: str) -> BeautifulSoup:
+        return self._parseFile(filepath, page)
+
+    def _fetchLocalPage(self, filepath: str) -> str:
         with open(filepath, "r", encoding="utf-8") as f:
-            html = f.read()
-            url = urlunsplit(("file", "", filepath, None, None))
-            return self._htmlCleaner.clean(html, url, True)
+            return f.read()
 
     def _parseFile(self, filepath: str, localPage: BeautifulSoup):
         body = "\n".join(map(str, localPage.find("body").children))

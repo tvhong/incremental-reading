@@ -26,10 +26,6 @@ class LocalFile:
             raise ValueError("Filepath is empty")
 
         filepath = Path(filepath).as_posix()  # Convert Windows Path to Linux
-        if not os.path.isfile(filepath):
-            raise ImporterError(
-                ErrorLevel.CRITICAL, f"File [{filepath}] Not exists."
-            )
 
         html = self._fetchLocalPage(filepath)
 
@@ -39,8 +35,13 @@ class LocalFile:
         return self._parseFile(filepath, page)
 
     def _fetchLocalPage(self, filepath: str) -> str:
-        with open(filepath, "r", encoding="utf-8") as f:
-            return f.read()
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                return f.read()
+        except FileNotFoundError as error:
+            raise ImporterError(
+                ErrorLevel.CRITICAL, f"File [{filepath}] Not exists."
+            ) from error
 
     def _parseFile(self, filepath: str, localPage: BeautifulSoup):
         body = "\n".join(map(str, localPage.find("body").children))

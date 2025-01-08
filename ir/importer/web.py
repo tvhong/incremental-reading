@@ -21,7 +21,7 @@ class Web:
         self._settings = settings
         self._htmlCleaner = HtmlCleaner()
 
-    def processWebpage(self, url: str) -> Webpage:
+    def process(self, url: str) -> Webpage:
         html = self._fetchWebpage(url)
         page = self._htmlCleaner.clean(html, url)
         return self._parseWebpage(url, page)

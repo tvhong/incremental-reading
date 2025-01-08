@@ -7,7 +7,7 @@ from aqt import mw
 class HtmlCleaner:
     _BAD_TAGS = ["iframe", "script"]
 
-    def clean(self, html: bytes, url: str, local: bool = False) -> BeautifulSoup:
+    def clean(self, html: bytes | str, url: str, local: bool = False) -> BeautifulSoup:
         webpage = BeautifulSoup(html, "html.parser")
 
         for tagName in self._BAD_TAGS:

@@ -27,7 +27,7 @@ class LocalFile:
         url = urlunsplit(("file", "", filepath, None, None))
         page = self._htmlCleaner.clean(html, url, True)
 
-        return self._parseFile(filepath, page)
+        return self._constructResponse(filepath, page)
 
     def _fetchLocalPage(self, filepath: str) -> str:
         try:
@@ -38,6 +38,6 @@ class LocalFile:
                 ErrorLevel.CRITICAL, f"File [{filepath}] Not exists."
             ) from error
 
-    def _parseFile(self, filepath: str, localPage: BeautifulSoup):
+    def _constructResponse(self, filepath: str, localPage: BeautifulSoup):
         body = "\n".join(map(str, localPage.find("body").children))
         return ParsedFile(body)

@@ -24,7 +24,7 @@ class Web:
     def process(self, url: str) -> Webpage:
         html = self._fetchWebpage(url)
         page = self._htmlCleaner.clean(html, url)
-        return self._parseWebpage(url, page)
+        return self._constructResponse(url, page)
 
     def _fetchWebpage(self, url: str) -> bytes:
         if urlsplit(url).scheme not in ["http", "https"]:
@@ -48,7 +48,7 @@ class Web:
 
         return html
 
-    def _parseWebpage(self, url: str, webpage: BeautifulSoup):
+    def _constructResponse(self, url: str, webpage: BeautifulSoup):
         body = "\n".join(map(str, webpage.find("body").children))
         title = webpage.title.string if webpage.title else url
 

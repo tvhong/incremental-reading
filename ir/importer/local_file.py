@@ -1,10 +1,7 @@
-import os
 from pathlib import Path
 from urllib.parse import urlunsplit
 from attr import dataclass
 from bs4 import BeautifulSoup
-
-from ir.settings import SettingsManager
 
 from .exceptions import ErrorLevel, ImporterError
 from .html_cleaner import HtmlCleaner
@@ -12,13 +9,13 @@ from .html_cleaner import HtmlCleaner
 
 @dataclass
 class ParsedFile:
+    # TODO: remove title
     title: str
     body: str
 
 
 class LocalFile:
-    def __init__(self, settings: SettingsManager) -> None:
-        self._settings = settings
+    def __init__(self) -> None:
         self._htmlCleaner = HtmlCleaner()
 
     def process(self, filepath: str) -> ParsedFile:

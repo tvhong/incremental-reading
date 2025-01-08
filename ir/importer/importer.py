@@ -21,10 +21,11 @@ from urllib.parse import urlsplit, urlunsplit
 
 from anki.notes import Note
 
-from ir.importer.html_cleaner import HtmlCleaner
-from ir.importer.web import Web
 
 from .exceptions import ErrorLevel, ImporterError
+from .html_cleaner import HtmlCleaner
+from .local_file import LocalFile
+from .web import Web
 
 try:
     from PyQt6.QtCore import Qt
@@ -62,6 +63,7 @@ from .pocket import Pocket
 class Importer:
     _pocket: Optional[Pocket] = None
     _web: Optional[Web] = None
+    _localFile: Optional[LocalFile] = None
     _htmlCleaner: Optional[HtmlCleaner] = None
     _settings: Optional[SettingsManager] = None
 
@@ -78,6 +80,12 @@ class Importer:
         return self._web
 
     @property
+    def localFile(self) -> LocalFile:
+        if not self._localFile:
+            raise ValueError("LocalFile is not initialized")
+        return self._localFile
+
+    @property
     def htmlCleaner(self) -> HtmlCleaner:
         if not self._htmlCleaner:
             raise ValueError("HtmlCleaner is not initialized")
@@ -92,6 +100,7 @@ class Importer:
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
         self._web = Web(self._settings)
+        self._localFile = LocalFile()
         self._htmlCleaner = HtmlCleaner()
         self._pocket = Pocket()
 
@@ -265,6 +274,7 @@ class Importer:
             prompt = f"Select priority for <b>{name}</b>"
         else:
             prompt = "Select priority for import"
+        # TODO: is this an int?
         return self.settings["priorities"][
             chooseList(prompt, self.settings["priorities"])
         ]
@@ -313,33 +323,25 @@ class Importer:
         return []
 
     def _importLocalFile(self, filepath: str, priority: str, title: str):
-        if not filepath:
+        if not title:
+            raise ValueError("Title is required")
+
+        try:
+            parsedFile = self.localFile.process(filepath)
+        except ImporterError as e:
+            if e.errorLevel == ErrorLevel.CRITICAL:
+                showCritical(e.message)
+            elif e.errorLevel == ErrorLevel.WARNING:
+                showWarning(e.message)
             return
 
-        filepath = Path(filepath).as_posix()  # Convert Windows Path to Linux
-        if not os.path.isfile(filepath):
-            showCritical(f"File [{filepath}] Not exists.")
-            return
-
-        localPage = self._fetchLocalPage(filepath)
-
-        body = "\n".join(map(str, localPage.find("body").children))
         source = self.settings["sourceFormat"].format(
             date=date.today(), url=f'<a href="{filepath}">{filepath}</a>'
         )
 
-        if not title:
-            title = localPage.title.string if localPage.title else filepath
-
-        deck = self._createNote(title, body, source, priority)
+        deck = self._createNote(title, parsedFile.body, source, priority)
 
         return deck
-
-    def _fetchLocalPage(self, filepath):
-        with open(filepath, "r", encoding="utf-8") as f:
-            html = f.read()
-            url = urlunsplit(("file", "", filepath, None, None))
-            return self.htmlCleaner.clean(html, url, True)
 
     def _createNote(self, title, text, source, priority=None):
         if self.settings["importDeck"]:

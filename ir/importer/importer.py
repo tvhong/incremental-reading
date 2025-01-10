@@ -187,33 +187,8 @@ class Importer:
     def importFeed(self):
         self.feedImporter.importContent()
 
-    def importPocket2(self):
-        self.pocketImporter.importContent()
-
     def importPocket(self):
-        articles = self.pocket.getArticles()
-        if not articles:
-            return
-        selected = selectEntriesToImport(articles)
-
-        priority = self._getPriority() if self.settings["prioEnabled"] else None
-
-        if selected:
-            n = len(selected)
-            mw.progress.start(
-                label="Importing Pocket articles...", max=n, immediate=True
-            )
-
-            for i, article in enumerate(selected, start=1):
-                deck = self.oldImportWebpage(
-                    article["given_url"], priority, True, article["resolved_title"]
-                )
-                if self.settings["pocketArchive"]:
-                    self.pocket.archive(article)
-                mw.progress.update(value=i)
-
-            mw.progress.finish()
-            tooltip(f"Added {n} item(s) to deck: {deck}")
+        self.pocketImporter.importContent()
 
     def importEpub(self):
         self._epubImporter.importContent()

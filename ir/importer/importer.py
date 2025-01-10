@@ -19,8 +19,6 @@ from urllib.parse import urlsplit
 
 from anki.notes import Note
 
-from ir.util import ImportEntry
-
 from .exceptions import ErrorLevel, ImporterError
 from .html_cleaner import HtmlCleaner
 from .local_file import LocalFile
@@ -55,7 +53,7 @@ from ir.lib.feedparser import parse
 from ir.settings import SettingsManager
 from ir.util import setField, selectEntriesToImport
 
-from .concrete_importers import WebpageImporter
+from .concrete_importers import WebpageImporter, FeedImporter
 from .epub import get_epub_toc
 from .pocket import Pocket
 
@@ -68,6 +66,7 @@ class Importer:
     _settings: Optional[SettingsManager] = None
 
     _webImporter: Optional[WebpageImporter] = None
+    _feedImporter: Optional[FeedImporter] = None
 
     @property
     def pocket(self) -> Pocket:
@@ -105,6 +104,12 @@ class Importer:
             raise ValueError("WebpageImporter is not initialized")
         return self._webImporter
 
+    @property
+    def feedImporter(self) -> FeedImporter:
+        if not self._feedImporter:
+            raise ValueError("FeedImporter is not initialized")
+        return self._feedImporter
+
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
         self._web = Web(self._settings)
@@ -113,6 +118,7 @@ class Importer:
         self._pocket = Pocket()
 
         self._webImporter = WebpageImporter(self._settings, self._web)
+        self._feedImporter = FeedImporter(self._settings, self._web)
 
     def importWebpage(self):
         self.webImporter.importContent()
@@ -163,6 +169,9 @@ class Importer:
         return deck
 
     def importFeed(self):
+        self.feedImporter.importContent()
+
+    def oldImportFeed(self):
         url, accepted = getText("Enter URL:", title="Import Feed")
 
         if not url or not accepted:

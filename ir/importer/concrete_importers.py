@@ -90,15 +90,17 @@ class FeedImporter(BaseImporter):
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
         url = article.data["url"]
         webpage = self.web.download(url)
+        return NoteModel(webpage.title, webpage.body, webpage.url, priority)
 
-        # TODO: maybe add postprocessing method
+    def _postProcessArticle(self, article: Article) -> None:
         feedUrl = article.data["feedUrl"]
-        feed = article.data["feed"]
+
+        url = article.data["url"]
         self.log[feedUrl]["downloaded"].append(url)
+
+        feed = article.data["feed"]
         self.log[feedUrl]["etag"] = feed.etag if hasattr(feed, "etag") else ""
         self.log[feedUrl]["modified"] = feed.modified if hasattr(feed, "modified") else ""
-
-        return NoteModel(webpage.title, webpage.body, webpage.url, priority)
 
     def _getProgressLabel(self) -> str:
         return "Importing feed..."

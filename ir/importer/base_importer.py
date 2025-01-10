@@ -35,6 +35,7 @@ class BaseImporter(ABC):
             for i, article in enumerate(selected, start=1):
                 noteModel = self._processArticle(article, priority)
                 deckName = self._createNote(noteModel)
+                self._postProcessArticle(article)
                 mw.progress.update(value=i)
 
             mw.progress.finish()
@@ -60,6 +61,10 @@ class BaseImporter(ABC):
     @abstractmethod
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
         """Process a single article"""
+        pass
+
+    def _postProcessArticle(self, article: Article) -> None:
+        """Post-process a single article"""
         pass
 
     @abstractmethod

@@ -28,7 +28,18 @@ except ModuleNotFoundError:
     from PyQt5.QtGui import QKeySequence
 
 from aqt import dialogs, mw
-from aqt.qt import QAction, QMenu, QSpinBox
+from aqt.qt import (
+    QAction,
+    QMenu,
+    QSpinBox,
+    QDialog,
+    QVBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QDialogButtonBox,
+    QAbstractItemView,
+)
 from bs4 import BeautifulSoup
 
 
@@ -190,3 +201,55 @@ def showBrowser(nid):
     browser = dialogs.open("Browser", mw)
     browser.form.searchEdit.lineEdit().setText("nid:" + str(nid))
     browser.onSearchActivated()
+
+
+def selectEntriesToImport(choices):
+    """Select which entries to import using a dialog.
+
+    Args:
+        choices: List of ImportEntry objects to select from
+
+    Returns:
+        List of selected entries' data
+    """
+    if not choices:
+        return []
+
+    dialog = QDialog(mw)
+    layout = QVBoxLayout()
+
+    textWidget = QLabel()
+    textWidget.setText("Select entries to import: ")
+
+    listWidget = QListWidget()
+    listWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+
+    for c in choices:
+        item = QListWidgetItem(c.text)
+        item.setData(Qt.ItemDataRole.UserRole, c.data)
+        listWidget.addItem(item)
+
+    buttonBox = QDialogButtonBox(
+        QDialogButtonBox.StandardButton.Close
+        | QDialogButtonBox.StandardButton.SaveAll
+    )
+    buttonBox.accepted.connect(dialog.accept)
+    buttonBox.rejected.connect(dialog.reject)
+    buttonBox.setOrientation(Qt.Orientation.Horizontal)
+
+    layout.addWidget(textWidget)
+    layout.addWidget(listWidget)
+    layout.addWidget(buttonBox)
+
+    dialog.setLayout(layout)
+    dialog.setWindowModality(Qt.WindowModality.WindowModal)
+    dialog.resize(500, 500)
+    choice = dialog.exec()
+
+    if choice == 1:
+        return [
+            listWidget.item(i).data(Qt.ItemDataRole.UserRole)
+            for i in range(listWidget.count())
+            if listWidget.item(i).isSelected()
+        ]
+    return []

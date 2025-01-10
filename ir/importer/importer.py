@@ -14,7 +14,7 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 from datetime import date
-from typing import Optional, List, Dict
+from typing import Optional, List
 from urllib.parse import urlsplit
 
 from anki.notes import Note
@@ -53,7 +53,7 @@ from aqt.utils import (
 
 from ir.lib.feedparser import parse
 from ir.settings import SettingsManager
-from ir.util import setField
+from ir.util import setField, selectEntriesToImport
 
 from .epub import get_epub_toc
 from .pocket import Pocket
@@ -186,7 +186,7 @@ class Importer:
             showInfo("There are no new items in this feed.")
             return
 
-        selected = self._selectEntriesToImport(entries)
+        selected = selectEntriesToImport(entries)
 
         if not selected:
             return
@@ -210,7 +210,7 @@ class Importer:
         articles = self.pocket.getArticles()
         if not articles:
             return
-        selected = self._selectEntriesToImport(articles)
+        selected = selectEntriesToImport(articles)
 
         priority = self._getPriority() if self.settings["prioEnabled"] else None
 
@@ -244,7 +244,7 @@ class Importer:
         if not articles:
             showInfo(f"No articles found in {epub_file_path}.")
             return
-        selected = self._selectEntriesToImport(articles)
+        selected = selectEntriesToImport(articles)
 
         priority = self._getPriority() if self.settings["prioEnabled"] else None
 
@@ -275,49 +275,6 @@ class Importer:
         return self.settings["priorities"][
             chooseList(prompt, self.settings["priorities"])
         ]
-
-    def _selectEntriesToImport(self, choices: List[ImportEntry]):
-        if not choices:
-            return []
-
-        dialog = QDialog(mw)
-        layout = QVBoxLayout()
-
-        textWidget = QLabel()
-        textWidget.setText("Select entries to import: ")
-
-        listWidget = QListWidget()
-        listWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-
-        for c in choices:
-            item = QListWidgetItem(c.text)
-            item.setData(Qt.ItemDataRole.UserRole, c.data)
-            listWidget.addItem(item)
-
-        buttonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Close
-            | QDialogButtonBox.StandardButton.SaveAll
-        )
-        buttonBox.accepted.connect(dialog.accept)
-        buttonBox.rejected.connect(dialog.reject)
-        buttonBox.setOrientation(Qt.Orientation.Horizontal)
-
-        layout.addWidget(textWidget)
-        layout.addWidget(listWidget)
-        layout.addWidget(buttonBox)
-
-        dialog.setLayout(layout)
-        dialog.setWindowModality(Qt.WindowModality.WindowModal)
-        dialog.resize(500, 500)
-        choice = dialog.exec()
-
-        if choice == 1:
-            return [
-                listWidget.item(i).data(Qt.ItemDataRole.UserRole)
-                for i in range(listWidget.count())
-                if listWidget.item(i).isSelected()
-            ]
-        return []
 
     def _importLocalFile(self, filepath: str, priority: str, title: str):
         if not title:

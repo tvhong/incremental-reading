@@ -74,7 +74,10 @@ class FeedImporter(BaseImporter):
             )
 
         articles = [
-            Article(title=e["title"], data={"feedUrl": feedUrl, "feed": feed, "url": e["link"]})
+            Article(
+                title=e["title"],
+                data={"feedUrl": feedUrl, "feed": feed, "url": e["link"]},
+            )
             for e in feed["entries"]
             if e["link"] not in self.log[feedUrl]["downloaded"]
         ]
@@ -102,7 +105,9 @@ class FeedImporter(BaseImporter):
 
         feed = article.data["feed"]
         self.log[feedUrl]["etag"] = feed.etag if hasattr(feed, "etag") else ""
-        self.log[feedUrl]["modified"] = feed.modified if hasattr(feed, "modified") else ""
+        self.log[feedUrl]["modified"] = (
+            feed.modified if hasattr(feed, "modified") else ""
+        )
 
     def _getProgressLabel(self) -> str:
         return "Importing feed..."
@@ -114,9 +119,7 @@ class EpubImporter(BaseImporter):
         self.localFile = localFile
 
     def _getArticles(self) -> List[Article]:
-        epubFilePath = getFile(
-            None, "Enter epub file path", None, filter="*.epub"
-        )
+        epubFilePath = getFile(None, "Enter epub file path", None, filter="*.epub")
 
         if not epubFilePath:
             return []
@@ -162,7 +165,12 @@ class PocketImporter(BaseImporter):
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
         url = article.data["given_url"]
         webpage = self.web.download(url)
-        return NoteModel(article.data.get("resolved_title") or webpage.title, webpage.body, webpage.url, priority)
+        return NoteModel(
+            article.data.get("resolved_title") or webpage.title,
+            webpage.body,
+            webpage.url,
+            priority,
+        )
 
     def _postProcessArticle(self, article: Article) -> None:
         if self.settings["pocketArchive"]:

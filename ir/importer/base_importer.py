@@ -91,7 +91,7 @@ class BaseImporter(ABC):
 
         source = self.settings["sourceFormat"].format(
             date=date.today(),
-            url=f'<a href="{noteModel.source}">{noteModel.source}</a>'
+            url=f'<a href="{noteModel.url}">{noteModel.url}</a>'
         )
         setField(note, self.settings["sourceField"], source)
         if noteModel.priority:

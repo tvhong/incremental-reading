@@ -1,11 +1,10 @@
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Optional
 
 
 @dataclass
 class NoteModel:
     title: str
     content: str
-    # TODO: rename to url
-    source: str
+    url: str
     priority: Optional[str]

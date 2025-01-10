@@ -27,7 +27,7 @@ class WebpageImporter(BaseImporter):
         if not urlsplit(url).scheme:
             url = "http://" + url
 
-        return [Article(text=url, data=url)]
+        return [Article(title=url, data=url)]
 
     def _selectArticles(self, articles: List[Article]) -> List[Article]:
         return articles
@@ -72,7 +72,7 @@ class FeedImporter(BaseImporter):
             )
 
         return [
-            Article(text=e["title"], data={"feedUrl": feedUrl, "feed": feed, "url": e["link"]})
+            Article(title=e["title"], data={"feedUrl": feedUrl, "feed": feed, "url": e["link"]})
             for e in feed["entries"]
             if e["link"] not in self.log[feedUrl]["downloaded"]
         ]

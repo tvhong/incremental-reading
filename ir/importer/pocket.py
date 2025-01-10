@@ -59,7 +59,7 @@ class Pocket:
 
         if response.json()["list"]:
             return [
-                Article(text=a["resolved_title"], data=a)
+                Article(title=a["resolved_title"], data=a)
                 for a in response.json()["list"].values()
             ]
 

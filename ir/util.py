@@ -47,8 +47,7 @@ from bs4 import BeautifulSoup
 
 @dataclass
 class Article:
-    # TODO: title?
-    text: str
+    title: str
     data: Any
 
 
@@ -234,7 +233,7 @@ def selectEntriesToImport(entries: List[Article]) -> List[Any]:
     listWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
     for entry in entries:
-        item = QListWidgetItem(entry.text)
+        item = QListWidgetItem(entry.title)
         item.setData(Qt.ItemDataRole.UserRole, entry.data)
         listWidget.addItem(item)
 
@@ -285,7 +284,7 @@ def selectEntriesToImport2(articles: List[Article]) -> List[Article]:
     listWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
     for article in articles:
-        item = QListWidgetItem(article.text)
+        item = QListWidgetItem(article.title)
         item.setData(Qt.ItemDataRole.UserRole, article)
         listWidget.addItem(item)
 

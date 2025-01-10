@@ -306,9 +306,9 @@ def selectEntriesToImport2(articles: List[Article]) -> List[Article]:
 
     if choice == 1:
         res = [
-            listWidget.item(i).data(Qt.ItemDataRole.UserRole)
-            for i in range(listWidget.count())
-            if listWidget.item(i).isSelected()
+            item.data(Qt.ItemDataRole.UserRole)
+            for item in listWidget.items()
+            if item.isSelected()
         ]
         return res
     return []

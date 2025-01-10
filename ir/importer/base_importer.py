@@ -22,8 +22,8 @@ class BaseImporter(ABC):
     def importContent(self) -> Optional[str]:
         """Template method that defines the import algorithm"""
         try:
-            entries = self._getArticles()
-            selected = self._selectArticles(entries)
+            articles = self._getArticles()
+            selected = self._selectArticles(articles)
             if not selected:
                 return None
 
@@ -48,17 +48,17 @@ class BaseImporter(ABC):
 
     @abstractmethod
     def _getArticles(self) -> List[Article]:
-        """Get the content entries to be imported"""
+        """Get the articles to be imported"""
         pass
 
     @abstractmethod
     def _selectArticles(self, articles: List[Article]) -> List[Article]:
-        """Select which entries to import. Can be overridden by subclasses."""
+        """Select which articles to import. Can be overridden by subclasses."""
         pass
 
     @abstractmethod
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
-        """Process a single entry"""
+        """Process a single article"""
         pass
 
     @abstractmethod

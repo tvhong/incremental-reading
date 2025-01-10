@@ -139,51 +139,6 @@ class Importer:
     def importWebpage(self):
         self.webImporter.importContent()
 
-
-    def oldImportWebpage(self, url=None, priority=None, silent=False, title=None):
-        # Template:
-        # 1. Get the URL and maybe a list of entries
-        # 2. Get prirotiy
-        # 3. Show progress bar
-        # 4. Download all entries
-        # 5. Import each entry and update progress bar
-        # 6. Finish progress bar
-        if not url:
-            url, accepted = getText("Enter URL:", title="Import Webpage")
-        else:
-            accepted = True
-
-        if not url or not accepted:
-            return
-
-        if not urlsplit(url).scheme:
-            url = "http://" + url
-
-        if self.settings["prioEnabled"] and not priority:
-            priority = self._getPriority(title)
-
-        try:
-            webpage = self.web.process(url)
-        except ImporterError as e:
-            if e.errorLevel == ErrorLevel.CRITICAL:
-                showCritical(e.message)
-            elif e.errorLevel == ErrorLevel.WARNING:
-                showWarning(e.message)
-            return
-
-        source = self.settings["sourceFormat"].format(
-            date=date.today(), url=f'<a href="{url}">{url}</a>'
-        )
-        if not title:
-            title = webpage.title
-
-        deck = self._createNote(title, webpage.body, source, priority)
-
-        if not silent:
-            tooltip(f"Added to deck: {deck}")
-
-        return deck
-
     def importFeed(self):
         self.feedImporter.importContent()
 

@@ -310,6 +310,5 @@ def selectEntriesToImport2(articles: List[Article]) -> List[Article]:
             for i in range(listWidget.count())
             if listWidget.item(i).isSelected()
         ]
-        from aqt import debug; debug()
         return res
     return []

@@ -45,9 +45,8 @@ from aqt.qt import (
 from bs4 import BeautifulSoup
 
 
-# TODO: call this Article(?)
 @dataclass
-class ImportEntry:
+class Article:
     text: str
     data: Any
 
@@ -212,7 +211,7 @@ def showBrowser(nid):
     browser.onSearchActivated()
 
 
-def selectEntriesToImport(entries: List[ImportEntry]) -> List[Any]:
+def selectEntriesToImport(entries: List[Article]) -> List[Any]:
     """Select which entries to import using a dialog.
 
     Args:

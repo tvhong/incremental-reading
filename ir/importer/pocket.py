@@ -21,7 +21,7 @@ from aqt.utils import askUser, openLink, showCritical, showInfo
 
 from requests import post
 
-from ir.util import ImportEntry
+from ir.util import Article
 
 
 class Pocket:
@@ -36,7 +36,7 @@ class Pocket:
     else:
         consumerKey = "71462-05fb63bf0314903c7e73c52f"
 
-    def getArticles(self) -> List[ImportEntry]:
+    def getArticles(self) -> List[Article]:
         if not self._accessToken:
             self._accessToken = self._authenticate()
 
@@ -59,7 +59,7 @@ class Pocket:
 
         if response.json()["list"]:
             return [
-                ImportEntry(text=a["resolved_title"], data=a)
+                Article(text=a["resolved_title"], data=a)
                 for a in response.json()["list"].values()
             ]
 

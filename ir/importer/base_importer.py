@@ -7,7 +7,7 @@ from aqt import mw
 from aqt.utils import tooltip, showCritical, showWarning, chooseList
 
 
-from ir.util import setField, ImportEntry
+from ir.util import setField, Article
 from ir.settings import SettingsManager
 
 from .exceptions import ImporterError, ErrorLevel
@@ -47,17 +47,17 @@ class BaseImporter(ABC):
             return None
 
     @abstractmethod
-    def _getEntries(self) -> List[ImportEntry]:
+    def _getEntries(self) -> List[Article]:
         """Get the content entries to be imported"""
         pass
 
     @abstractmethod
-    def _selectEntries(self, entries: List[ImportEntry]) -> List[ImportEntry]:
+    def _selectEntries(self, entries: List[Article]) -> List[Article]:
         """Select which entries to import. Can be overridden by subclasses."""
         pass
 
     @abstractmethod
-    def _processEntry(self, entry: ImportEntry, priority: Optional[str]) -> NoteModel:
+    def _processEntry(self, entry: Article, priority: Optional[str]) -> NoteModel:
         """Process a single entry"""
         pass
 

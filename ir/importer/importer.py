@@ -19,7 +19,7 @@ from urllib.parse import urlsplit
 
 from anki.notes import Note
 
-from ir.util import ImportEntry
+from ir.util import Article
 
 from .exceptions import ErrorLevel, ImporterError
 from .html_cleaner import HtmlCleaner
@@ -192,7 +192,7 @@ class Importer:
             )
 
         entries = [
-            ImportEntry(text=e["title"], data=e)
+            Article(text=e["title"], data=e)
             for e in feed["entries"]
             if e["link"] not in log[url]["downloaded"]
         ]

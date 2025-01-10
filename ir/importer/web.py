@@ -49,7 +49,12 @@ class Web:
         return html
 
     def _constructResponse(self, url: str, webpage: BeautifulSoup):
-        body = "\n".join(map(str, webpage.find("body").children))
-        title = webpage.title.string if webpage.title else url
+        try:
+            body = "\n".join(map(str, webpage.find("body").children))
+            title = webpage.title.string if webpage.title else url
+        except AttributeError as error:
+            raise ImporterError(
+                ErrorLevel.WARNING, f"The webpage at {url} is not valid."
+            ) from error
 
         return Webpage(url, title, body)

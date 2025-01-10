@@ -47,6 +47,7 @@ from bs4 import BeautifulSoup
 
 @dataclass
 class Article:
+    # TODO: title?
     text: str
     data: Any
 
@@ -259,4 +260,57 @@ def selectEntriesToImport(entries: List[Article]) -> List[Any]:
             for i in range(listWidget.count())
             if listWidget.item(i).isSelected()
         ]
+    return []
+
+
+def selectEntriesToImport2(articles: List[Article]) -> List[Article]:
+    """Select which entries to import using a dialog.
+
+    Args:
+        choices: List of ImportEntry objects to select from
+
+    Returns:
+        List of selected entries' data
+    """
+    if not articles:
+        return []
+
+    dialog = QDialog(mw)
+    layout = QVBoxLayout()
+
+    textWidget = QLabel()
+    textWidget.setText("Select entries to import: ")
+
+    listWidget = QListWidget()
+    listWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+
+    for article in articles:
+        item = QListWidgetItem(article.text)
+        item.setData(Qt.ItemDataRole.UserRole, article)
+        listWidget.addItem(item)
+
+    buttonBox = QDialogButtonBox(
+        QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.SaveAll
+    )
+    buttonBox.accepted.connect(dialog.accept)
+    buttonBox.rejected.connect(dialog.reject)
+    buttonBox.setOrientation(Qt.Orientation.Horizontal)
+
+    layout.addWidget(textWidget)
+    layout.addWidget(listWidget)
+    layout.addWidget(buttonBox)
+
+    dialog.setLayout(layout)
+    dialog.setWindowModality(Qt.WindowModality.WindowModal)
+    dialog.resize(500, 500)
+    choice = dialog.exec()
+
+    if choice == 1:
+        res = [
+            listWidget.item(i).data(Qt.ItemDataRole.UserRole)
+            for i in range(listWidget.count())
+            if listWidget.item(i).isSelected()
+        ]
+        from aqt import debug; debug()
+        return res
     return []

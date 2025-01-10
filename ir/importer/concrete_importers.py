@@ -7,7 +7,7 @@ from ir.lib.feedparser import parse
 from ir.importer.exceptions import ErrorLevel
 from ir.importer.web import Web
 from ir.settings import SettingsManager
-from ir.util import Article, selectEntriesToImport
+from ir.util import Article, selectEntriesToImport2
 
 from .base_importer import BaseImporter
 from .models import NoteModel
@@ -47,7 +47,7 @@ class FeedImporter(BaseImporter):
         self.log = settings["feedLog"]
 
     def _getArticles(self) -> List[Article]:
-        feedUrl, accepted = getText("Enter URL:", title="Import Feed")
+        feedUrl, accepted = getText("Enter RSS URL:", title="Import Feed")
         if not feedUrl or not accepted:
             return []
 
@@ -78,7 +78,7 @@ class FeedImporter(BaseImporter):
         ]
 
     def _selectArticles(self, articles: List[Article]) -> List[Article]:
-        return selectEntriesToImport(articles)
+        return selectEntriesToImport2(articles)
 
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
         url = article.data["url"]

@@ -18,11 +18,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 from typing import List
-from urllib.parse import urlencode, urlsplit, urlunsplit
-
-from anki.utils import is_mac, is_win
-from aqt.utils import askUser, openLink, showCritical, showInfo
-from requests import post
+from urllib.parse import urlsplit, urlunsplit
 
 from .models import ImportEntry
 

@@ -1,7 +1,7 @@
 from typing import List, Optional
 from urllib.parse import urlsplit
 
-from aqt.utils import getText
+from aqt.utils import getText, getFile
 
 from ir.lib.feedparser import parse
 from ir.importer.exceptions import ErrorLevel
@@ -10,8 +10,10 @@ from ir.settings import SettingsManager
 from ir.util import Article, selectEntriesToImport2
 
 from .base_importer import BaseImporter
-from .models import NoteModel
+from .epub import get_epub_toc
 from .exceptions import ImporterError, ErrorLevel
+from .local_file import LocalFile
+from .models import NoteModel
 
 
 class WebpageImporter(BaseImporter):
@@ -104,3 +106,36 @@ class FeedImporter(BaseImporter):
 
     def _getProgressLabel(self) -> str:
         return "Importing feed..."
+
+
+class EpubImporter(BaseImporter):
+    def __init__(self, settings: SettingsManager, localFile: LocalFile):
+        super().__init__(settings)
+        self.localFile = localFile
+
+    def _getArticles(self) -> List[Article]:
+        if not epubFilePath:
+            epubFilePath = getFile(
+                None, "Enter epub file path", None, filter="*.epub"
+            )
+
+        if not epubFilePath:
+            return []
+
+        articles = get_epub_toc(epubFilePath)
+        if not articles:
+            raise ImporterError(
+                ErrorLevel.WARNING, f"No articles found in {epubFilePath}."
+            )
+
+        return articles
+
+    def _selectArticles(self, articles: List[Article]) -> List[Article]:
+        return selectEntriesToImport2(articles)
+
+    def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
+        parsedFile = self.localFile.process(article.data["href"])
+        return NoteModel(article.title, parsedFile.body, "placeholder-url", priority)
+
+    def _getProgressLabel(self) -> str:
+        return "Importing epub..."

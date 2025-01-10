@@ -114,10 +114,9 @@ class EpubImporter(BaseImporter):
         self.localFile = localFile
 
     def _getArticles(self) -> List[Article]:
-        if not epubFilePath:
-            epubFilePath = getFile(
-                None, "Enter epub file path", None, filter="*.epub"
-            )
+        epubFilePath = getFile(
+            None, "Enter epub file path", None, filter="*.epub"
+        )
 
         if not epubFilePath:
             return []

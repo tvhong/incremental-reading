@@ -53,7 +53,7 @@ from ir.lib.feedparser import parse
 from ir.settings import SettingsManager
 from ir.util import setField, selectEntriesToImport
 
-from .concrete_importers import WebpageImporter, FeedImporter
+from .concrete_importers import WebpageImporter, FeedImporter, EpubImporter
 from .epub import get_epub_toc
 from .pocket import Pocket
 
@@ -67,6 +67,7 @@ class Importer:
 
     _webImporter: Optional[WebpageImporter] = None
     _feedImporter: Optional[FeedImporter] = None
+    _epubImporter: Optional[EpubImporter] = None
 
     @property
     def pocket(self) -> Pocket:
@@ -110,6 +111,12 @@ class Importer:
             raise ValueError("FeedImporter is not initialized")
         return self._feedImporter
 
+    @property
+    def epubImporter(self) -> EpubImporter:
+        if not self._epubImporter:
+            raise ValueError("EpubImporter is not initialized")
+        return self._epubImporter
+
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
         self._web = Web(self._settings)
@@ -119,6 +126,7 @@ class Importer:
 
         self._webImporter = WebpageImporter(self._settings, self._web)
         self._feedImporter = FeedImporter(self._settings, self._web)
+        self._epubImporter = EpubImporter(self._settings, self._localFile)
 
     def importWebpage(self):
         self.webImporter.importContent()
@@ -195,6 +203,9 @@ class Importer:
 
             mw.progress.finish()
             tooltip(f"Added {n} item(s) to deck: {deck}")
+
+    def importEpub2(self):
+        self._epubImporter.importContent()
 
     def importEpub(self, epub_file_path=None):
         if not epub_file_path:

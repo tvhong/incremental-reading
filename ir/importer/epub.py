@@ -165,6 +165,7 @@ def nov_toc_epub3_files(toc_file, root) -> List[Article]:
         else:
             path = os.path.join(toc_dir, href)
             scheme, netloc, path, *_ = urlsplit(path)
+        # TODO: remove "text" from data and rename it to "title"
         data = {"text": text, "href": path}
         files.append(Article(text, data))
     return files
@@ -199,6 +200,7 @@ def get_epub_toc(epub_file_path) -> List[Article]:
     toc_doc = ET.parse(toc_file)
     toc_root = toc_doc.getroot()
     if version < 3.0:
+        # TODO: pass epub_file_path in and create article.data from it
         return nov_toc_epub2_files(content_dir, toc_root)
     else:
         return nov_toc_epub3_files(toc_file, toc_root)

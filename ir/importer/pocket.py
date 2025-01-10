@@ -99,12 +99,12 @@ class Pocket:
         except JSONDecodeError:
             return None
 
-    def archive(self, article):
+    def archive(self, article: Article) -> None:
         post(
             "https://getpocket.com/v3/send",
             json={
                 "consumer_key": self.consumerKey,
                 "access_token": self._accessToken,
-                "actions": [{"action": "archive", "item_id": article["item_id"]}],
+                "actions": [{"action": "archive", "item_id": article.data["item_id"]}],
             },
         )

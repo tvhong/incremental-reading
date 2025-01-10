@@ -53,7 +53,7 @@ from ir.lib.feedparser import parse
 from ir.settings import SettingsManager
 from ir.util import setField, selectEntriesToImport
 
-from .concrete_importers import WebpageImporter, FeedImporter, EpubImporter
+from .concrete_importers import WebpageImporter, FeedImporter, EpubImporter, PocketImporter
 from .epub import getEpubToc
 from .pocket import Pocket
 
@@ -68,6 +68,7 @@ class Importer:
     _webImporter: Optional[WebpageImporter] = None
     _feedImporter: Optional[FeedImporter] = None
     _epubImporter: Optional[EpubImporter] = None
+    _pocketImporter: Optional[PocketImporter] = None
 
     @property
     def pocket(self) -> Pocket:
@@ -117,6 +118,12 @@ class Importer:
             raise ValueError("EpubImporter is not initialized")
         return self._epubImporter
 
+    @property
+    def pocketImporter(self) -> PocketImporter:
+        if not self._pocketImporter:
+            raise ValueError("PocketImporter is not initialized")
+        return self._pocketImporter
+
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
         self._web = Web(self._settings)
@@ -127,6 +134,7 @@ class Importer:
         self._webImporter = WebpageImporter(self._settings, self._web)
         self._feedImporter = FeedImporter(self._settings, self._web)
         self._epubImporter = EpubImporter(self._settings, self._localFile)
+        self._pocketImporter = PocketImporter(self._settings, self._pocket, self._web)
 
     def importWebpage(self):
         self.webImporter.importContent()
@@ -178,6 +186,9 @@ class Importer:
 
     def importFeed(self):
         self.feedImporter.importContent()
+
+    def importPocket2(self):
+        self.pocketImporter.importContent()
 
     def importPocket(self):
         articles = self.pocket.getArticles()

@@ -1,0 +1,98 @@
+from abc import ABC, abstractmethod
+from typing import List, Optional
+
+from anki.notes import Note
+from aqt import mw
+from aqt.utils import tooltip, showCritical, showWarning
+
+
+from ir.util import setField
+from ir.settings import SettingsManager
+
+from .exceptions import ImporterError, ErrorLevel
+from .models import ImportEntry, NoteModel
+
+
+class BaseImporter(ABC):
+    def __init__(self, settings: SettingsManager):
+        self.settings = settings
+
+    def import_content(self, priority: Optional[str] = None) -> Optional[str]:
+        """Template method that defines the import algorithm"""
+        try:
+            entries = self.getEntries()
+            selected = self.selectEntries(entries)
+            if not selected:
+                return None
+
+            # priority = self._getPriority() if self.settings["prioEnabled"] else None
+            mw.progress.start(label=self._getProgressLabel(), max=len(selected), immediate=True)
+
+            deckName = None
+            for i, entry in enumerate(selected, start=1):
+                noteModel = self._processEntry(entry, priority)
+                deckName = self._createNote(noteModel)
+                mw.progress.update(value=i)
+
+            mw.progress.finish()
+
+            tooltip(f"Added {len(selected)} item(s) to deck: {deckName}")
+
+            return deckName
+
+        except ImporterError as e:
+            self._handleError(e)
+            return None
+
+    @abstractmethod
+    def getEntries(self) -> List[ImportEntry]:
+        """Get the content entries to be imported"""
+        pass
+
+    @abstractmethod
+    def selectEntries(self, entries: List[ImportEntry]) -> List[ImportEntry]:
+        """Select which entries to import. Can be overridden by subclasses."""
+        pass
+
+    @abstractmethod
+    def _processEntry(self, entry: ImportEntry, priority: Optional[str]) -> NoteModel:
+        """Process a single entry"""
+        pass
+
+    @abstractmethod
+    def _getProgressLabel(self) -> str:
+        """Get the progress label for the import operation"""
+        pass
+
+    def _createNote(self, noteModel: NoteModel) -> str:
+        """Create a note from a NoteModel"""
+        if self.settings["importDeck"]:
+            deck = mw.col.decks.by_name(self.settings["importDeck"])
+            if not deck:
+                showWarning(
+                    f"Destination deck \"{deck}\" no longer exists. Please update your settings."
+                )
+                return
+            deckId = deck["id"]
+        else:
+            deckId = mw.col.conf["curDeck"]
+
+        model = mw.col.models.by_name(self.settings["modelName"])
+        note = Note(mw.col, model)
+        setField(note, self.settings["titleField"], noteModel.title)
+        setField(note, self.settings["textField"], noteModel.content)
+        setField(note, self.settings["sourceField"], noteModel.source)
+        if noteModel.priority:
+            setField(note, self.settings["prioField"], noteModel.priority)
+
+        note.note_type()["did"] = deckId
+        mw.col.addNote(note)
+
+        return mw.col.decks.get(deckId)["name"]
+
+    def _handleError(self, error: ImporterError) -> None:
+        """Handle import errors"""
+        if error.errorLevel == ErrorLevel.CRITICAL:
+            showCritical(error.message)
+        elif error.errorLevel == ErrorLevel.WARNING:
+            showWarning(error.message)

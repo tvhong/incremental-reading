@@ -5,7 +5,7 @@ from aqt.utils import getFile, getText
 
 from ir.lib.feedparser import parse
 from ir.settings import SettingsManager
-from ir.util import Article, selectEntriesToImport2
+from ir.util import Article, selectArticles
 
 from .base_importer import BaseImporter
 from .epub import getEpubToc
@@ -90,7 +90,7 @@ class FeedImporter(BaseImporter):
         return articles
 
     def _selectArticles(self, articles: List[Article]) -> List[Article]:
-        return selectEntriesToImport2(articles)
+        return selectArticles(articles)
 
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
         url = article.data["url"]
@@ -133,7 +133,7 @@ class EpubImporter(BaseImporter):
         return articles
 
     def _selectArticles(self, articles: List[Article]) -> List[Article]:
-        return selectEntriesToImport2(articles)
+        return selectArticles(articles)
 
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
         url = article.data["url"]
@@ -160,7 +160,7 @@ class PocketImporter(BaseImporter):
         return articles
 
     def _selectArticles(self, articles: List[Article]) -> List[Article]:
-        return selectEntriesToImport2(articles)
+        return selectArticles(articles)
 
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
         url = article.data["given_url"]

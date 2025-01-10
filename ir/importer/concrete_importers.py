@@ -71,11 +71,18 @@ class FeedImporter(BaseImporter):
                 f"The remote server returned an unexpected status: {feed['status']}",
             )
 
-        return [
+        articles = [
             Article(title=e["title"], data={"feedUrl": feedUrl, "feed": feed, "url": e["link"]})
             for e in feed["entries"]
             if e["link"] not in self.log[feedUrl]["downloaded"]
         ]
+
+        if not articles:
+            raise ImporterError(
+                ErrorLevel.WARNING, "There are no new entries in the feed."
+            )
+
+        return articles
 
     def _selectArticles(self, articles: List[Article]) -> List[Article]:
         return selectEntriesToImport2(articles)

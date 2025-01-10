@@ -13,11 +13,9 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-import os
 from datetime import date
-from pathlib import Path
 from typing import Optional
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit
 
 from anki.notes import Note
 

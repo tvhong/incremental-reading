@@ -115,7 +115,7 @@ class Importer:
         self._webImporter = WebpageImporter(self._settings, self._web)
 
     def importWebpage2(self):
-        self.webImporter.import_content()
+        self.webImporter.importContent()
 
 
     def importWebpage(self, url=None, priority=None, silent=False, title=None):

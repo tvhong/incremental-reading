@@ -19,7 +19,7 @@ class BaseImporter(ABC):
         self.settings = settings
 
     # TODO: return nothing? and importContent
-    def import_content(self) -> Optional[str]:
+    def importContent(self) -> Optional[str]:
         """Template method that defines the import algorithm"""
         try:
             entries = self._getArticles()

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import date
 from typing import List, Optional
 
 from anki.notes import Note
@@ -17,6 +18,7 @@ class BaseImporter(ABC):
     def __init__(self, settings: SettingsManager):
         self.settings = settings
 
+    # TODO: return nothing?
     def import_content(self) -> Optional[str]:
         """Template method that defines the import algorithm"""
         try:
@@ -87,7 +89,12 @@ class BaseImporter(ABC):
         note = Note(mw.col, model)
         setField(note, self.settings["titleField"], noteModel.title)
         setField(note, self.settings["textField"], noteModel.content)
-        setField(note, self.settings["sourceField"], noteModel.source)
+
+        source = self.settings["sourceFormat"].format(
+            date=date.today(),
+            url=f'<a href="{noteModel.source}">{noteModel.source}</a>'
+        )
+        setField(note, self.settings["sourceField"], source)
         if noteModel.priority:
             setField(note, self.settings["prioField"], noteModel.priority)
 

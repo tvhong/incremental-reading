@@ -4,16 +4,16 @@ from urllib.parse import urlsplit
 from aqt.utils import getText, getFile
 
 from ir.lib.feedparser import parse
-from ir.importer.exceptions import ErrorLevel
-from ir.importer.web import Web
 from ir.settings import SettingsManager
 from ir.util import Article, selectEntriesToImport2
 
 from .base_importer import BaseImporter
 from .epub import getEpubToc
 from .exceptions import ImporterError, ErrorLevel
+from .pocket import Pocket
 from .local_file import LocalFile
 from .models import NoteModel
+from .web import Web
 
 
 class WebpageImporter(BaseImporter):
@@ -139,3 +139,34 @@ class EpubImporter(BaseImporter):
 
     def _getProgressLabel(self) -> str:
         return "Importing epub..."
+
+
+class PocketImporter(BaseImporter):
+    def __init__(self, settings: SettingsManager, pocket: Pocket, web: Web):
+        super().__init__(settings)
+        self.pocket = pocket
+        self.web = web
+
+    def _getArticles(self) -> List[Article]:
+        articles = self.pocket.getArticles()
+        if not articles:
+            raise ImporterError(
+                ErrorLevel.WARNING, "There are no new articles in Pocket."
+            )
+
+        return articles
+
+    def _selectArticles(self, articles: List[Article]) -> List[Article]:
+        return selectEntriesToImport2(articles)
+
+    def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
+        url = article.data["given_url"]
+        webpage = self.web.download(url)
+        return NoteModel(article.data.get("resolved_title") or webpage.title, webpage.body, webpage.url, priority)
+
+    def _postProcessArticle(self, article: Article) -> None:
+        if self.settings["pocketArchive"]:
+            self.pocket.archive(article)
+
+    def _getProgressLabel(self) -> str:
+        return "Importing Pocket articles..."

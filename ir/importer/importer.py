@@ -319,49 +319,6 @@ class Importer:
             ]
         return []
 
-    def _selectEntriesToImport(self, choices: Dict):
-        if not choices:
-            return []
-
-        dialog = QDialog(mw)
-        layout = QVBoxLayout()
-
-        textWidget = QLabel()
-        textWidget.setText("Select entries to import: ")
-
-        listWidget = QListWidget()
-        listWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-
-        for c in choices:
-            item = QListWidgetItem(c["text"])
-            item.setData(Qt.ItemDataRole.UserRole, c["data"])
-            listWidget.addItem(item)
-
-        buttonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Close
-            | QDialogButtonBox.StandardButton.SaveAll
-        )
-        buttonBox.accepted.connect(dialog.accept)
-        buttonBox.rejected.connect(dialog.reject)
-        buttonBox.setOrientation(Qt.Orientation.Horizontal)
-
-        layout.addWidget(textWidget)
-        layout.addWidget(listWidget)
-        layout.addWidget(buttonBox)
-
-        dialog.setLayout(layout)
-        dialog.setWindowModality(Qt.WindowModality.WindowModal)
-        dialog.resize(500, 500)
-        choice = dialog.exec()
-
-        if choice == 1:
-            return [
-                listWidget.item(i).data(Qt.ItemDataRole.UserRole)
-                for i in range(listWidget.count())
-                if listWidget.item(i).isSelected()
-            ]
-        return []
-
     def _importLocalFile(self, filepath: str, priority: str, title: str):
         if not title:
             raise ValueError("Title is required")

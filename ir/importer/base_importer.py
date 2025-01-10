@@ -22,7 +22,7 @@ class BaseImporter(ABC):
     def import_content(self) -> Optional[str]:
         """Template method that defines the import algorithm"""
         try:
-            entries = self._getEntries()
+            entries = self._getArticles()
             selected = self._selectEntries(entries)
             if not selected:
                 return None
@@ -47,7 +47,7 @@ class BaseImporter(ABC):
             return None
 
     @abstractmethod
-    def _getEntries(self) -> List[Article]:
+    def _getArticles(self) -> List[Article]:
         """Get the content entries to be imported"""
         pass
 

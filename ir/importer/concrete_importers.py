@@ -16,7 +16,7 @@ class WebpageImporter(BaseImporter):
         super().__init__(settings)
         self.web = web
 
-    def _getEntries(self) -> List[Article]:
+    def _getArticles(self) -> List[Article]:
         url, accepted = getText("Enter URL:", title="Import Webpage")
         if not url or not accepted:
             return []

@@ -1,10 +1,12 @@
 from urllib.error import HTTPError
 from urllib.parse import urlsplit
+
 from attr import dataclass
 from bs4 import BeautifulSoup
 from requests import get
 
 from ir.settings import SettingsManager
+
 from .exceptions import ErrorLevel, ImporterError
 from .html_cleaner import HtmlCleaner
 

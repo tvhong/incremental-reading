@@ -1,8 +1,9 @@
 from typing import Union
 from urllib.parse import urljoin, urlsplit
 from urllib.request import url2pathname
-from bs4 import BeautifulSoup, Comment, Tag
+
 from aqt import mw
+from bs4 import BeautifulSoup, Comment, Tag
 
 
 class HtmlCleaner:

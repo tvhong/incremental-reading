@@ -1,7 +1,7 @@
 from typing import List, Optional
 from urllib.parse import urlsplit
 
-from aqt.utils import getText, getFile
+from aqt.utils import getFile, getText
 
 from ir.lib.feedparser import parse
 from ir.settings import SettingsManager
@@ -9,10 +9,10 @@ from ir.util import Article, selectEntriesToImport2
 
 from .base_importer import BaseImporter
 from .epub import getEpubToc
-from .exceptions import ImporterError, ErrorLevel
-from .pocket import Pocket
+from .exceptions import ErrorLevel, ImporterError
 from .local_file import LocalFile
 from .models import NoteModel
+from .pocket import Pocket
 from .web import Web
 
 

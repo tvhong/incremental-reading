@@ -31,16 +31,16 @@ except ModuleNotFoundError:
 
 from aqt import dialogs, mw
 from aqt.qt import (
+    QAbstractItemView,
     QAction,
-    QMenu,
-    QSpinBox,
     QDialog,
-    QVBoxLayout,
+    QDialogButtonBox,
     QLabel,
     QListWidget,
     QListWidgetItem,
-    QDialogButtonBox,
-    QAbstractItemView,
+    QMenu,
+    QSpinBox,
+    QVBoxLayout,
 )
 from bs4 import BeautifulSoup
 

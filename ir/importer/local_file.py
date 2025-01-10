@@ -1,5 +1,6 @@
 from pathlib import Path
 from urllib.parse import urlunsplit
+
 from attr import dataclass
 from bs4 import BeautifulSoup
 

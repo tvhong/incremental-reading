@@ -26,10 +26,10 @@ except ModuleNotFoundError:
 from ir.settings import SettingsManager
 
 from .concrete_importers import (
-    WebpageImporter,
-    FeedImporter,
     EpubImporter,
+    FeedImporter,
     PocketImporter,
+    WebpageImporter,
 )
 from .pocket import Pocket
 

@@ -4,13 +4,12 @@ from typing import List, Optional
 
 from anki.notes import Note
 from aqt import mw
-from aqt.utils import tooltip, showCritical, showWarning, chooseList
+from aqt.utils import chooseList, showCritical, showWarning, tooltip
 
-
-from ir.util import setField, Article
 from ir.settings import SettingsManager
+from ir.util import Article, setField
 
-from .exceptions import ImporterError, ErrorLevel
+from .exceptions import ErrorLevel, ImporterError
 from .models import NoteModel
 
 

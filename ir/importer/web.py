@@ -21,8 +21,7 @@ class Web:
         self._settings = settings
         self._htmlCleaner = HtmlCleaner()
 
-    # TODO: rename to download(?)
-    def process(self, url: str) -> Webpage:
+    def download(self, url: str) -> Webpage:
         html = self._fetchWebpage(url)
         page = self._htmlCleaner.clean(html, url)
         return self._constructResponse(url, page)

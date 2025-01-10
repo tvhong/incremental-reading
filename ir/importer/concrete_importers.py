@@ -30,7 +30,7 @@ class WebpageImporter(BaseImporter):
         return articles
 
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
-        webpage = self.web.process(article.data)
+        webpage = self.web.download(article.data)
         return NoteModel(webpage.title, webpage.body, webpage.url, priority)
 
     def _getProgressLabel(self) -> str:

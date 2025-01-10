@@ -141,7 +141,7 @@ class Importer:
             priority = self._getPriority(title)
 
         try:
-            webpage = self.web.process(url)
+            webpage = self.web.download(url)
         except ImporterError as e:
             if e.errorLevel == ErrorLevel.CRITICAL:
                 showCritical(e.message)

@@ -19,10 +19,10 @@ from urllib.parse import urlsplit
 
 from anki.notes import Note
 
+from ir.util import ImportEntry
 
 from .exceptions import ErrorLevel, ImporterError
 from .html_cleaner import HtmlCleaner
-from .models import ImportEntry
 from .local_file import LocalFile
 from .web import Web
 
@@ -55,6 +55,7 @@ from ir.lib.feedparser import parse
 from ir.settings import SettingsManager
 from ir.util import setField, selectEntriesToImport
 
+from .concrete_importers import WebpageImporter
 from .epub import get_epub_toc
 from .pocket import Pocket
 
@@ -65,6 +66,8 @@ class Importer:
     _localFile: Optional[LocalFile] = None
     _htmlCleaner: Optional[HtmlCleaner] = None
     _settings: Optional[SettingsManager] = None
+
+    _webImporter: Optional[WebpageImporter] = None
 
     @property
     def pocket(self) -> Pocket:
@@ -96,12 +99,24 @@ class Importer:
             raise ValueError("Settings is not initialized")
         return self._settings
 
+    @property
+    def webImporter(self) -> WebpageImporter:
+        if not self._webImporter:
+            raise ValueError("WebpageImporter is not initialized")
+        return self._webImporter
+
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
         self._web = Web(self._settings)
         self._localFile = LocalFile()
         self._htmlCleaner = HtmlCleaner()
         self._pocket = Pocket()
+
+        self._webImporter = WebpageImporter(self._settings, self._web)
+
+    def importWebpage2(self):
+        self.webImporter.import_content()
+
 
     def importWebpage(self, url=None, priority=None, silent=False, title=None):
         # Template:

@@ -16,12 +16,11 @@ import os
 import re
 import stat
 import time
+from dataclasses import dataclass
 from typing import Any, List
 from urllib.parse import unquote
 
 from anki.cards import Card
-
-from ir.importer.models import ImportEntry
 
 try:
     from PyQt6.QtCore import Qt
@@ -44,6 +43,13 @@ from aqt.qt import (
     QAbstractItemView,
 )
 from bs4 import BeautifulSoup
+
+
+# TODO: call this Article(?)
+@dataclass
+class ImportEntry:
+    text: str
+    data: Any
 
 
 def isIrCard(card: Card) -> bool:

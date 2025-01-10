@@ -2,13 +2,17 @@ from typing import List, Optional
 from urllib.parse import urlsplit
 
 from aqt.utils import getText
-from ir.importer.models import ImportEntry, NoteModel
+
+from ir.importer.web import Web
+from ir.settings import SettingsManager
+from ir.util import ImportEntry
 
 from .base_importer import BaseImporter
+from .models import NoteModel
 
 
 class WebpageImporter(BaseImporter):
-    def __init__(self, settings, web):
+    def __init__(self, settings: SettingsManager, web: Web):
         super().__init__(settings)
         self.web = web
 
@@ -25,10 +29,9 @@ class WebpageImporter(BaseImporter):
     def _selectEntries(self, entries: List[ImportEntry]) -> List[ImportEntry]:
         return entries
 
-    def _processEntry(self, entry: ImportEntry, priority: Optional[str]) -> Optional[str]:
+    def _processEntry(self, entry: ImportEntry, priority: Optional[str]) -> NoteModel:
         webpage = self.web.process(entry.data)
-        noteModel = NoteModel(webpage.title, webpage.body, entry.data, priority)
-        return self._createNote(noteModel)
+        return NoteModel(webpage.title, webpage.body, webpage.url, priority)
 
     def _getProgressLabel(self) -> str:
         return "Importing webpage..."

@@ -21,7 +21,7 @@ from aqt.utils import askUser, openLink, showCritical, showInfo
 
 from requests import post
 
-from .models import ImportEntry
+from ir.util import ImportEntry
 
 
 class Pocket:

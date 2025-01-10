@@ -7,23 +7,23 @@ from aqt import mw
 from aqt.utils import tooltip, showCritical, showWarning, chooseList
 
 
-from ir.util import setField
+from ir.util import setField, ImportEntry
 from ir.settings import SettingsManager
 
 from .exceptions import ImporterError, ErrorLevel
-from .models import ImportEntry, NoteModel
+from .models import NoteModel
 
 
 class BaseImporter(ABC):
     def __init__(self, settings: SettingsManager):
         self.settings = settings
 
-    # TODO: return nothing?
+    # TODO: return nothing? and importContent
     def import_content(self) -> Optional[str]:
         """Template method that defines the import algorithm"""
         try:
-            entries = self.getEntries()
-            selected = self.selectEntries(entries)
+            entries = self._getEntries()
+            selected = self._selectEntries(entries)
             if not selected:
                 return None
 
@@ -47,12 +47,12 @@ class BaseImporter(ABC):
             return None
 
     @abstractmethod
-    def getEntries(self) -> List[ImportEntry]:
+    def _getEntries(self) -> List[ImportEntry]:
         """Get the content entries to be imported"""
         pass
 
     @abstractmethod
-    def selectEntries(self, entries: List[ImportEntry]) -> List[ImportEntry]:
+    def _selectEntries(self, entries: List[ImportEntry]) -> List[ImportEntry]:
         """Select which entries to import. Can be overridden by subclasses."""
         pass
 

@@ -171,65 +171,6 @@ class Importer:
     def importFeed(self):
         self.feedImporter.importContent()
 
-    def oldImportFeed(self):
-        url, accepted = getText("Enter URL:", title="Import Feed")
-
-        if not url or not accepted:
-            return
-
-        if not urlsplit(url).scheme:
-            url = "http://" + url
-
-        priority = self._getPriority() if self.settings["prioEnabled"] else None
-
-        log = self.settings["feedLog"]
-        try:
-            feed = parse(
-                url,
-                agent=self.settings["userAgent"],
-                etag=log[url]["etag"],
-                modified=log[url]["modified"],
-            )
-        except KeyError:
-            log[url] = {"downloaded": []}
-            feed = parse(url, agent=self.settings["userAgent"])
-
-        if feed["status"] not in [200, 301, 302]:
-            showWarning(
-                "The remote server has returned an unexpected status: "
-                f'{feed["status"]}'
-            )
-
-        entries = [
-            ImportEntry(text=e["title"], data=e)
-            for e in feed["entries"]
-            if e["link"] not in log[url]["downloaded"]
-        ]
-
-        if not entries:
-            showInfo("There are no new items in this feed.")
-            return
-
-        selected = selectEntriesToImport(entries)
-
-        if not selected:
-            return
-
-        n = len(selected)
-
-        mw.progress.start(label="Importing feed entries...", max=n, immediate=True)
-
-        for i, entry in enumerate(selected, start=1):
-            deck = self.oldImportWebpage(entry["link"], priority, True)
-            log[url]["downloaded"].append(entry["link"])
-            mw.progress.update(value=i)
-
-        log[url]["etag"] = feed.etag if hasattr(feed, "etag") else ""
-        log[url]["modified"] = feed.modified if hasattr(feed, "modified") else ""
-
-        mw.progress.finish()
-        tooltip(f"Added {n} item(s) to deck: {deck}")
-
     def importPocket(self):
         articles = self.pocket.getArticles()
         if not articles:

@@ -117,7 +117,6 @@ class Importer:
     def importWebpage2(self):
         self.webImporter.importContent()
 
-
     def importWebpage(self, url=None, priority=None, silent=False, title=None):
         # Template:
         # 1. Get the URL and maybe a list of entries

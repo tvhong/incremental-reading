@@ -27,7 +27,9 @@ class BaseImporter(ABC):
                 return None
 
             priority = self._getPriority() if self.settings["prioEnabled"] else None
-            mw.progress.start(label=self._getProgressLabel(), max=len(selected), immediate=True)
+            mw.progress.start(
+                label=self._getProgressLabel(), max=len(selected), immediate=True
+            )
 
             deckName = None
             for i, article in enumerate(selected, start=1):
@@ -77,7 +79,7 @@ class BaseImporter(ABC):
             deck = mw.col.decks.by_name(self.settings["importDeck"])
             if not deck:
                 showWarning(
-                    f"Destination deck \"{deck}\" no longer exists. Please update your settings."
+                    f'Destination deck "{deck}" no longer exists. Please update your settings.'
                 )
                 return
             deckId = deck["id"]
@@ -90,8 +92,7 @@ class BaseImporter(ABC):
         setField(note, self.settings["textField"], noteModel.content)
 
         source = self.settings["sourceFormat"].format(
-            date=date.today(),
-            url=f'<a href="{noteModel.url}">{noteModel.url}</a>'
+            date=date.today(), url=f'<a href="{noteModel.url}">{noteModel.url}</a>'
         )
         setField(note, self.settings["sourceField"], source)
         if noteModel.priority:

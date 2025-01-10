@@ -238,8 +238,7 @@ def selectEntriesToImport(entries: List[Article]) -> List[Any]:
         listWidget.addItem(item)
 
     buttonBox = QDialogButtonBox(
-        QDialogButtonBox.StandardButton.Close
-        | QDialogButtonBox.StandardButton.SaveAll
+        QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.SaveAll
     )
     buttonBox.accepted.connect(dialog.accept)
     buttonBox.rejected.connect(dialog.reject)

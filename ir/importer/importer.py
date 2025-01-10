@@ -14,7 +14,7 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 from urllib.parse import urlsplit
 
 from anki.notes import Note
@@ -22,6 +22,7 @@ from anki.notes import Note
 
 from .exceptions import ErrorLevel, ImporterError
 from .html_cleaner import HtmlCleaner
+from .models import EntryChoice
 from .local_file import LocalFile
 from .web import Web
 
@@ -176,7 +177,7 @@ class Importer:
             )
 
         entries = [
-            {"text": e["title"], "data": e}
+            EntryChoice(text=e["title"], data=e)
             for e in feed["entries"]
             if e["link"] not in log[url]["downloaded"]
         ]
@@ -185,7 +186,7 @@ class Importer:
             showInfo("There are no new items in this feed.")
             return
 
-        selected = self._selectEntriesToImport(entries)
+        selected = self._selectEntriesToImport2(entries)
 
         if not selected:
             return
@@ -275,6 +276,49 @@ class Importer:
         return self.settings["priorities"][
             chooseList(prompt, self.settings["priorities"])
         ]
+
+    def _selectEntriesToImport2(self, choices: List[EntryChoice]):
+        if not choices:
+            return []
+
+        dialog = QDialog(mw)
+        layout = QVBoxLayout()
+
+        textWidget = QLabel()
+        textWidget.setText("Select entries to import: ")
+
+        listWidget = QListWidget()
+        listWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+
+        for c in choices:
+            item = QListWidgetItem(c.text)
+            item.setData(Qt.ItemDataRole.UserRole, c.data)
+            listWidget.addItem(item)
+
+        buttonBox = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Close
+            | QDialogButtonBox.StandardButton.SaveAll
+        )
+        buttonBox.accepted.connect(dialog.accept)
+        buttonBox.rejected.connect(dialog.reject)
+        buttonBox.setOrientation(Qt.Orientation.Horizontal)
+
+        layout.addWidget(textWidget)
+        layout.addWidget(listWidget)
+        layout.addWidget(buttonBox)
+
+        dialog.setLayout(layout)
+        dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        dialog.resize(500, 500)
+        choice = dialog.exec()
+
+        if choice == 1:
+            return [
+                listWidget.item(i).data(Qt.ItemDataRole.UserRole)
+                for i in range(listWidget.count())
+                if listWidget.item(i).isSelected()
+            ]
+        return []
 
     def _selectEntriesToImport(self, choices):
         if not choices:

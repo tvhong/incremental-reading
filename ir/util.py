@@ -16,9 +16,12 @@ import os
 import re
 import stat
 import time
+from typing import Any, List
 from urllib.parse import unquote
 
 from anki.cards import Card
+
+from ir.importer.models import ImportEntry
 
 try:
     from PyQt6.QtCore import Qt
@@ -203,7 +206,7 @@ def showBrowser(nid):
     browser.onSearchActivated()
 
 
-def selectEntriesToImport(choices):
+def selectEntriesToImport(entries: List[ImportEntry]) -> List[Any]:
     """Select which entries to import using a dialog.
 
     Args:
@@ -212,7 +215,7 @@ def selectEntriesToImport(choices):
     Returns:
         List of selected entries' data
     """
-    if not choices:
+    if not entries:
         return []
 
     dialog = QDialog(mw)
@@ -224,9 +227,9 @@ def selectEntriesToImport(choices):
     listWidget = QListWidget()
     listWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
-    for c in choices:
-        item = QListWidgetItem(c.text)
-        item.setData(Qt.ItemDataRole.UserRole, c.data)
+    for entry in entries:
+        item = QListWidgetItem(entry.text)
+        item.setData(Qt.ItemDataRole.UserRole, entry.data)
         listWidget.addItem(item)
 
     buttonBox = QDialogButtonBox(

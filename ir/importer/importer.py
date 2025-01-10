@@ -54,7 +54,7 @@ from ir.settings import SettingsManager
 from ir.util import setField, selectEntriesToImport
 
 from .concrete_importers import WebpageImporter, FeedImporter, EpubImporter
-from .epub import get_epub_toc
+from .epub import getEpubToc
 from .pocket import Pocket
 
 

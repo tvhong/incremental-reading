@@ -10,7 +10,7 @@ from ir.settings import SettingsManager
 from ir.util import Article, selectEntriesToImport2
 
 from .base_importer import BaseImporter
-from .epub import get_epub_toc
+from .epub import getEpubToc
 from .exceptions import ImporterError, ErrorLevel
 from .local_file import LocalFile
 from .models import NoteModel
@@ -121,7 +121,7 @@ class EpubImporter(BaseImporter):
         if not epubFilePath:
             return []
 
-        articles = get_epub_toc(epubFilePath)
+        articles = getEpubToc(epubFilePath)
         if not articles:
             raise ImporterError(
                 ErrorLevel.WARNING, f"No articles found in {epubFilePath}."

@@ -187,7 +187,7 @@ def _unzip_epub(file_path):
     return extract_dir
 
 
-def get_epub_toc(epub_file_path) -> List[Article]:
+def getEpubToc(epub_file_path) -> List[Article]:
     extract_dir = _unzip_epub(epub_file_path)
     container_filename = os.path.join(extract_dir, "META-INF", "container.xml")
     content_filename = nov_container_content_filename(container_filename)

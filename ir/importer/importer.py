@@ -19,7 +19,7 @@ from urllib.parse import urlsplit
 
 from anki.notes import Note
 
-from ir.util import Article
+from ir.util import ImportEntry
 
 from .exceptions import ErrorLevel, ImporterError
 from .html_cleaner import HtmlCleaner
@@ -114,10 +114,11 @@ class Importer:
 
         self._webImporter = WebpageImporter(self._settings, self._web)
 
-    def importWebpage2(self):
-        self.webImporter.importContent()
+    def importWebpage(self):
+        self.webImporter.import_content()
 
-    def importWebpage(self, url=None, priority=None, silent=False, title=None):
+
+    def oldImportWebpage(self, url=None, priority=None, silent=False, title=None):
         # Template:
         # 1. Get the URL and maybe a list of entries
         # 2. Get prirotiy
@@ -140,7 +141,7 @@ class Importer:
             priority = self._getPriority(title)
 
         try:
-            webpage = self.web.download(url)
+            webpage = self.web.process(url)
         except ImporterError as e:
             if e.errorLevel == ErrorLevel.CRITICAL:
                 showCritical(e.message)
@@ -191,7 +192,7 @@ class Importer:
             )
 
         entries = [
-            Article(text=e["title"], data=e)
+            ImportEntry(text=e["title"], data=e)
             for e in feed["entries"]
             if e["link"] not in log[url]["downloaded"]
         ]
@@ -210,7 +211,7 @@ class Importer:
         mw.progress.start(label="Importing feed entries...", max=n, immediate=True)
 
         for i, entry in enumerate(selected, start=1):
-            deck = self.importWebpage(entry["link"], priority, True)
+            deck = self.oldImportWebpage(entry["link"], priority, True)
             log[url]["downloaded"].append(entry["link"])
             mw.progress.update(value=i)
 
@@ -235,7 +236,7 @@ class Importer:
             )
 
             for i, article in enumerate(selected, start=1):
-                deck = self.importWebpage(
+                deck = self.oldImportWebpage(
                     article["given_url"], priority, True, article["resolved_title"]
                 )
                 if self.settings["pocketArchive"]:

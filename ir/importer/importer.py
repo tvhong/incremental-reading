@@ -13,14 +13,8 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-from datetime import date
-from typing import Optional, List
-from urllib.parse import urlsplit
+from typing import Optional
 
-from anki.notes import Note
-
-from .exceptions import ErrorLevel, ImporterError
-from .html_cleaner import HtmlCleaner
 from .local_file import LocalFile
 from .web import Web
 
@@ -29,32 +23,9 @@ try:
 except ModuleNotFoundError:
     from PyQt5.QtCore import Qt
 
-from aqt import mw
-from aqt.qt import (
-    QAbstractItemView,
-    QDialog,
-    QDialogButtonBox,
-    QLabel,
-    QListWidget,
-    QListWidgetItem,
-    QVBoxLayout,
-)
-from aqt.utils import (
-    chooseList,
-    getFile,
-    getText,
-    showCritical,
-    showInfo,
-    showWarning,
-    tooltip,
-)
-
-from ir.lib.feedparser import parse
 from ir.settings import SettingsManager
-from ir.util import setField, selectEntriesToImport
 
 from .concrete_importers import WebpageImporter, FeedImporter, EpubImporter, PocketImporter
-from .epub import getEpubToc
 from .pocket import Pocket
 
 
@@ -62,7 +33,6 @@ class Importer:
     _pocket: Optional[Pocket] = None
     _web: Optional[Web] = None
     _localFile: Optional[LocalFile] = None
-    _htmlCleaner: Optional[HtmlCleaner] = None
     _settings: Optional[SettingsManager] = None
 
     _webImporter: Optional[WebpageImporter] = None
@@ -87,12 +57,6 @@ class Importer:
         if not self._localFile:
             raise ValueError("LocalFile is not initialized")
         return self._localFile
-
-    @property
-    def htmlCleaner(self) -> HtmlCleaner:
-        if not self._htmlCleaner:
-            raise ValueError("HtmlCleaner is not initialized")
-        return self._htmlCleaner
 
     @property
     def settings(self) -> SettingsManager:
@@ -128,7 +92,6 @@ class Importer:
         self._settings = settings
         self._web = Web(self._settings)
         self._localFile = LocalFile()
-        self._htmlCleaner = HtmlCleaner()
         self._pocket = Pocket()
 
         self._webImporter = WebpageImporter(self._settings, self._web)
@@ -147,37 +110,3 @@ class Importer:
 
     def importEpub(self):
         self._epubImporter.importContent()
-
-    def _getPriority(self, name=None) -> str:
-        if name:
-            prompt = f"Select priority for <b>{name}</b>"
-        else:
-            prompt = "Select priority for import"
-        return self.settings["priorities"][
-            chooseList(prompt, self.settings["priorities"])
-        ]
-
-    def _createNote(self, title, text, source, priority=None):
-        if self.settings["importDeck"]:
-            deck = mw.col.decks.by_name(self.settings["importDeck"])
-            if not deck:
-                showWarning(
-                    "Destination deck no longer exists. " "Please update your settings."
-                )
-                return
-            deckId = deck["id"]
-        else:
-            deckId = mw.col.conf["curDeck"]
-
-        model = mw.col.models.by_name(self.settings["modelName"])
-        note = Note(mw.col, model)
-        setField(note, self.settings["titleField"], title)
-        setField(note, self.settings["textField"], text)
-        setField(note, self.settings["sourceField"], source)
-        if priority:
-            setField(note, self.settings["prioField"], priority)
-
-        note.note_type()["did"] = deckId
-        mw.col.addNote(note)
-
-        return mw.col.decks.get(deckId)["name"]

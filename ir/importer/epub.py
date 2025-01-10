@@ -142,12 +142,12 @@ def nov_toc_epub2_files(content_dir, root) -> List[Article]:
     for point in nav_points:
         text_node = point.find("{*}navLabel/{*}text")
         content_node = point.find("{*}content")
-        text = text_node.text
+        title = text_node.text
         href = os.path.join(content_dir, content_node.get("src"))
         scheme, netloc, path, *_ = urlsplit(href)
         path = urlunsplit((scheme, netloc, path, "", ""))
-        data = {"text": text, "href": path}
-        files.append(Article(text, data))
+        data = {"text": title, "href": path}
+        files.append(Article(title, data))
     return files
 
 
@@ -158,7 +158,7 @@ def nov_toc_epub3_files(toc_file, root) -> List[Article]:
     files = []
     for point in nav_points:
         node = point.find("{*}a")
-        text = node.text
+        title = node.text
         href = node.get("href")
         if href.startswith("#"):
             path = toc_file
@@ -166,8 +166,8 @@ def nov_toc_epub3_files(toc_file, root) -> List[Article]:
             path = os.path.join(toc_dir, href)
             scheme, netloc, path, *_ = urlsplit(path)
         # TODO: remove "text" from data and rename it to "title"
-        data = {"text": text, "href": path}
-        files.append(Article(text, data))
+        data = {"text": title, "href": path}
+        files.append(Article(title, data))
     return files
 
 
@@ -200,7 +200,6 @@ def getEpubToc(epub_file_path) -> List[Article]:
     toc_doc = ET.parse(toc_file)
     toc_root = toc_doc.getroot()
     if version < 3.0:
-        # TODO: pass epub_file_path in and create article.data from it
         return nov_toc_epub2_files(content_dir, toc_root)
     else:
         return nov_toc_epub3_files(toc_file, toc_root)

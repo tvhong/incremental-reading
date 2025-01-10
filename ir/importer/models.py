@@ -6,3 +6,11 @@ from typing import Any
 class ImportEntry:
     text: str
     data: Any
+
+
+@dataclass
+class NoteModel:
+    title: str
+    content: str
+    source: str
+    priority: str

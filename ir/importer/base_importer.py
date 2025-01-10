@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from anki.notes import Note
 from aqt import mw
-from aqt.utils import tooltip, showCritical, showWarning
+from aqt.utils import tooltip, showCritical, showWarning, chooseList
 
 
 from ir.util import setField
@@ -17,7 +17,7 @@ class BaseImporter(ABC):
     def __init__(self, settings: SettingsManager):
         self.settings = settings
 
-    def import_content(self, priority: Optional[str] = None) -> Optional[str]:
+    def import_content(self) -> Optional[str]:
         """Template method that defines the import algorithm"""
         try:
             entries = self.getEntries()
@@ -25,7 +25,7 @@ class BaseImporter(ABC):
             if not selected:
                 return None
 
-            # priority = self._getPriority() if self.settings["prioEnabled"] else None
+            priority = self._getPriority() if self.settings["prioEnabled"] else None
             mw.progress.start(label=self._getProgressLabel(), max=len(selected), immediate=True)
 
             deckName = None
@@ -63,6 +63,12 @@ class BaseImporter(ABC):
     def _getProgressLabel(self) -> str:
         """Get the progress label for the import operation"""
         pass
+
+    def _getPriority(self) -> str:
+        prompt = "Select priority for import"
+        return self.settings["priorities"][
+            chooseList(prompt, self.settings["priorities"])
+        ]
 
     def _createNote(self, noteModel: NoteModel) -> str:
         """Create a note from a NoteModel"""

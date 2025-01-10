@@ -22,7 +22,7 @@ from anki.notes import Note
 
 from .exceptions import ErrorLevel, ImporterError
 from .html_cleaner import HtmlCleaner
-from .models import EntryChoice
+from .models import ImportEntry
 from .local_file import LocalFile
 from .web import Web
 
@@ -177,7 +177,7 @@ class Importer:
             )
 
         entries = [
-            EntryChoice(text=e["title"], data=e)
+            ImportEntry(text=e["title"], data=e)
             for e in feed["entries"]
             if e["link"] not in log[url]["downloaded"]
         ]
@@ -276,7 +276,7 @@ class Importer:
             chooseList(prompt, self.settings["priorities"])
         ]
 
-    def _selectEntriesToImport(self, choices: List[EntryChoice]):
+    def _selectEntriesToImport(self, choices: List[ImportEntry]):
         if not choices:
             return []
 

@@ -3,6 +3,6 @@ from typing import Any
 
 
 @dataclass
-class EntryChoice:
+class ImportEntry:
     text: str
     data: Any

@@ -24,7 +24,7 @@ from anki.utils import is_mac, is_win
 from aqt.utils import askUser, openLink, showCritical, showInfo
 from requests import post
 
-from .models import EntryChoice
+from .models import ImportEntry
 
 
 def nov_container_content_filename(filename):
@@ -139,7 +139,7 @@ def nov_content_toc_file(content_dir, root):
     return version, toc_filename
 
 
-def nov_toc_epub2_files(content_dir, root) -> List[EntryChoice]:
+def nov_toc_epub2_files(content_dir, root) -> List[ImportEntry]:
     query = "{*}navMap//{*}navPoint"
     nav_points = root.findall(query)
     files = []
@@ -151,11 +151,11 @@ def nov_toc_epub2_files(content_dir, root) -> List[EntryChoice]:
         scheme, netloc, path, *_ = urlsplit(href)
         path = urlunsplit((scheme, netloc, path, "", ""))
         data = {"text": text, "href": path}
-        files.append(EntryChoice(text, data))
+        files.append(ImportEntry(text, data))
     return files
 
 
-def nov_toc_epub3_files(toc_file, root) -> List[EntryChoice]:
+def nov_toc_epub3_files(toc_file, root) -> List[ImportEntry]:
     toc_dir = os.path.dirname(toc_file)
     query = ".//{*}nav//{*}ol/{*}li"
     nav_points = root.findall(query)
@@ -170,7 +170,7 @@ def nov_toc_epub3_files(toc_file, root) -> List[EntryChoice]:
             path = os.path.join(toc_dir, href)
             scheme, netloc, path, *_ = urlsplit(path)
         data = {"text": text, "href": path}
-        files.append(EntryChoice(text, data))
+        files.append(ImportEntry(text, data))
     return files
 
 
@@ -190,7 +190,7 @@ def _unzip_epub(file_path):
     return extract_dir
 
 
-def get_epub_toc(epub_file_path) -> List[EntryChoice]:
+def get_epub_toc(epub_file_path) -> List[ImportEntry]:
     extract_dir = _unzip_epub(epub_file_path)
     container_filename = os.path.join(extract_dir, "META-INF", "container.xml")
     content_filename = nov_container_content_filename(container_filename)

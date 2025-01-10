@@ -133,8 +133,9 @@ class EpubImporter(BaseImporter):
         return selectEntriesToImport2(articles)
 
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
-        parsedFile = self.localFile.process(article.data["href"])
-        return NoteModel(article.title, parsedFile.body, "placeholder-url", priority)
+        url = article.data["href"]
+        parsedFile = self.localFile.process(url)
+        return NoteModel(article.title, parsedFile.body, url, priority)
 
     def _getProgressLabel(self) -> str:
         return "Importing epub..."

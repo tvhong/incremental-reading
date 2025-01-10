@@ -204,44 +204,8 @@ class Importer:
             mw.progress.finish()
             tooltip(f"Added {n} item(s) to deck: {deck}")
 
-    def importEpub2(self):
+    def importEpub(self):
         self._epubImporter.importContent()
-
-    def importEpub(self, epub_file_path=None):
-        if not epub_file_path:
-            epub_file_path = getFile(
-                None, "Enter epub File path", None, filter="*.epub"
-            )
-
-        if not epub_file_path:
-            return
-
-        articles = get_epub_toc(epub_file_path)
-        if not articles:
-            showInfo(f"No articles found in {epub_file_path}.")
-            return
-        selected = selectEntriesToImport(articles)
-
-        priority = self._getPriority() if self.settings["prioEnabled"] else None
-
-        if selected:
-            n = len(selected)
-
-            mw.progress.start(label="Importing Epub articles...", max=n, immediate=True)
-
-            importedArticle = []
-            for i, article in enumerate(selected, start=1):
-                text = article.get("text")
-                href = article["href"]
-                if href not in importedArticle:
-                    deck = self._importLocalFile(href, priority, text)
-                    importedArticle.append(href)
-                else:
-                    print(href, "Already imported, Skipping")
-                mw.progress.update(value=i)
-
-            mw.progress.finish()
-            tooltip(f"Added {len(importedArticle)} item(s) to deck: {deck}")
 
     def _getPriority(self, name=None) -> str:
         if name:

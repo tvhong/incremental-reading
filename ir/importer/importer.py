@@ -14,7 +14,7 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 from datetime import date
-from typing import Optional, List
+from typing import Optional, List, Dict
 from urllib.parse import urlsplit
 
 from anki.notes import Note
@@ -210,8 +210,7 @@ class Importer:
         articles = self.pocket.getArticles()
         if not articles:
             return
-
-        selected = self._selectEntriesToImport(articles)
+        selected = self._selectEntriesToImport2(articles)
 
         priority = self._getPriority() if self.settings["prioEnabled"] else None
 
@@ -320,7 +319,7 @@ class Importer:
             ]
         return []
 
-    def _selectEntriesToImport(self, choices):
+    def _selectEntriesToImport(self, choices: Dict):
         if not choices:
             return []
 

@@ -26,11 +26,11 @@ class WebpageImporter(BaseImporter):
 
         return [Article(text=url, data=url)]
 
-    def _selectArticles(self, entries: List[Article]) -> List[Article]:
-        return entries
+    def _selectArticles(self, articles: List[Article]) -> List[Article]:
+        return articles
 
-    def _processEntry(self, entry: Article, priority: Optional[str]) -> NoteModel:
-        webpage = self.web.process(entry.data)
+    def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
+        webpage = self.web.process(article.data)
         return NoteModel(webpage.title, webpage.body, webpage.url, priority)
 
     def _getProgressLabel(self) -> str:

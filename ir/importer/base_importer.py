@@ -31,8 +31,8 @@ class BaseImporter(ABC):
             mw.progress.start(label=self._getProgressLabel(), max=len(selected), immediate=True)
 
             deckName = None
-            for i, entry in enumerate(selected, start=1):
-                noteModel = self._processEntry(entry, priority)
+            for i, article in enumerate(selected, start=1):
+                noteModel = self._processArticle(article, priority)
                 deckName = self._createNote(noteModel)
                 mw.progress.update(value=i)
 
@@ -52,12 +52,12 @@ class BaseImporter(ABC):
         pass
 
     @abstractmethod
-    def _selectArticles(self, entries: List[Article]) -> List[Article]:
+    def _selectArticles(self, articles: List[Article]) -> List[Article]:
         """Select which entries to import. Can be overridden by subclasses."""
         pass
 
     @abstractmethod
-    def _processEntry(self, entry: Article, priority: Optional[str]) -> NoteModel:
+    def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
         """Process a single entry"""
         pass
 

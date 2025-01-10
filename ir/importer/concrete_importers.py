@@ -26,7 +26,7 @@ class WebpageImporter(BaseImporter):
 
         return [Article(text=url, data=url)]
 
-    def _selectEntries(self, entries: List[Article]) -> List[Article]:
+    def _selectArticles(self, entries: List[Article]) -> List[Article]:
         return entries
 
     def _processEntry(self, entry: Article, priority: Optional[str]) -> NoteModel:

@@ -23,7 +23,7 @@ class BaseImporter(ABC):
         """Template method that defines the import algorithm"""
         try:
             entries = self._getArticles()
-            selected = self._selectEntries(entries)
+            selected = self._selectArticles(entries)
             if not selected:
                 return None
 
@@ -52,7 +52,7 @@ class BaseImporter(ABC):
         pass
 
     @abstractmethod
-    def _selectEntries(self, entries: List[Article]) -> List[Article]:
+    def _selectArticles(self, entries: List[Article]) -> List[Article]:
         """Select which entries to import. Can be overridden by subclasses."""
         pass
 

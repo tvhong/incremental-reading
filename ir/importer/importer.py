@@ -244,7 +244,7 @@ class Importer:
         if not articles:
             showInfo(f"No articles found in {epub_file_path}.")
             return
-        selected = self._selectEntriesToImport(articles)
+        selected = self._selectEntriesToImport2(articles)
 
         priority = self._getPriority() if self.settings["prioEnabled"] else None
 

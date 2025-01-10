@@ -40,56 +40,9 @@ class Importer:
     _epubImporter: Optional[EpubImporter] = None
     _pocketImporter: Optional[PocketImporter] = None
 
-    @property
-    def pocket(self) -> Pocket:
-        if not self._pocket:
-            raise ValueError("Pocket is not initialized")
-        return self._pocket
-
-    @property
-    def web(self) -> Web:
-        if not self._web:
-            raise ValueError("Web is not initialized")
-        return self._web
-
-    @property
-    def localFile(self) -> LocalFile:
-        if not self._localFile:
-            raise ValueError("LocalFile is not initialized")
-        return self._localFile
-
-    @property
-    def settings(self) -> SettingsManager:
-        if not self._settings:
-            raise ValueError("Settings is not initialized")
-        return self._settings
-
-    @property
-    def webImporter(self) -> WebpageImporter:
-        if not self._webImporter:
-            raise ValueError("WebpageImporter is not initialized")
-        return self._webImporter
-
-    @property
-    def feedImporter(self) -> FeedImporter:
-        if not self._feedImporter:
-            raise ValueError("FeedImporter is not initialized")
-        return self._feedImporter
-
-    @property
-    def epubImporter(self) -> EpubImporter:
-        if not self._epubImporter:
-            raise ValueError("EpubImporter is not initialized")
-        return self._epubImporter
-
-    @property
-    def pocketImporter(self) -> PocketImporter:
-        if not self._pocketImporter:
-            raise ValueError("PocketImporter is not initialized")
-        return self._pocketImporter
-
     def changeProfile(self, settings: SettingsManager):
         self._settings = settings
+
         self._web = Web(self._settings)
         self._localFile = LocalFile()
         self._pocket = Pocket()
@@ -100,13 +53,13 @@ class Importer:
         self._pocketImporter = PocketImporter(self._settings, self._pocket, self._web)
 
     def importWebpage(self):
-        self.webImporter.importContent()
+        self._webImporter.importContent()
 
     def importFeed(self):
-        self.feedImporter.importContent()
+        self._feedImporter.importContent()
 
     def importPocket(self):
-        self.pocketImporter.importContent()
+        self._pocketImporter.importContent()
 
     def importEpub(self):
         self._epubImporter.importContent()

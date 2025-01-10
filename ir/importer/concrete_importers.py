@@ -133,7 +133,7 @@ class EpubImporter(BaseImporter):
         return selectEntriesToImport2(articles)
 
     def _processArticle(self, article: Article, priority: Optional[str]) -> NoteModel:
-        url = article.data["href"]
+        url = article.data["url"]
         parsedFile = self.localFile.process(url)
         return NoteModel(article.title, parsedFile.body, url, priority)
 

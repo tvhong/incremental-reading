@@ -146,7 +146,7 @@ def nov_toc_epub2_files(content_dir, root) -> List[Article]:
         href = os.path.join(content_dir, content_node.get("src"))
         scheme, netloc, path, *_ = urlsplit(href)
         path = urlunsplit((scheme, netloc, path, "", ""))
-        data = {"text": title, "href": path}
+        data = {"url": path}
         files.append(Article(title, data))
     return files
 
@@ -165,8 +165,7 @@ def nov_toc_epub3_files(toc_file, root) -> List[Article]:
         else:
             path = os.path.join(toc_dir, href)
             scheme, netloc, path, *_ = urlsplit(path)
-        # TODO: remove "text" from data and rename it to "title"
-        data = {"text": title, "href": path}
+        data = {"url": path}
         files.append(Article(title, data))
     return files
 

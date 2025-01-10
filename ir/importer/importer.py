@@ -186,7 +186,7 @@ class Importer:
             showInfo("There are no new items in this feed.")
             return
 
-        selected = self._selectEntriesToImport2(entries)
+        selected = self._selectEntriesToImport(entries)
 
         if not selected:
             return
@@ -210,7 +210,7 @@ class Importer:
         articles = self.pocket.getArticles()
         if not articles:
             return
-        selected = self._selectEntriesToImport2(articles)
+        selected = self._selectEntriesToImport(articles)
 
         priority = self._getPriority() if self.settings["prioEnabled"] else None
 
@@ -244,7 +244,7 @@ class Importer:
         if not articles:
             showInfo(f"No articles found in {epub_file_path}.")
             return
-        selected = self._selectEntriesToImport2(articles)
+        selected = self._selectEntriesToImport(articles)
 
         priority = self._getPriority() if self.settings["prioEnabled"] else None
 
@@ -276,7 +276,7 @@ class Importer:
             chooseList(prompt, self.settings["priorities"])
         ]
 
-    def _selectEntriesToImport2(self, choices: List[EntryChoice]):
+    def _selectEntriesToImport(self, choices: List[EntryChoice]):
         if not choices:
             return []
 

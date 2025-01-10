@@ -216,27 +216,6 @@ class Importer:
             chooseList(prompt, self.settings["priorities"])
         ]
 
-    def _importLocalFile(self, filepath: str, priority: str, title: str):
-        if not title:
-            raise ValueError("Title is required")
-
-        try:
-            parsedFile = self.localFile.process(filepath)
-        except ImporterError as e:
-            if e.errorLevel == ErrorLevel.CRITICAL:
-                showCritical(e.message)
-            elif e.errorLevel == ErrorLevel.WARNING:
-                showWarning(e.message)
-            return
-
-        source = self.settings["sourceFormat"].format(
-            date=date.today(), url=f'<a href="{filepath}">{filepath}</a>'
-        )
-
-        deck = self._createNote(title, parsedFile.body, source, priority)
-
-        return deck
-
     def _createNote(self, title, text, source, priority=None):
         if self.settings["importDeck"]:
             deck = mw.col.decks.by_name(self.settings["importDeck"])

@@ -6,9 +6,8 @@ from anki.notes import Note
 from aqt import mw
 from aqt.utils import chooseList, showCritical, showWarning, tooltip
 
-from ir.settings import SettingsManager
-from ir.util import Article, setField
-
+from ..settings import SettingsManager
+from ..util import Article, setField
 from .exceptions import ErrorLevel, ImporterError
 from .models import NoteModel
 

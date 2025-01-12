@@ -3,10 +3,9 @@ from urllib.parse import urlsplit
 
 from aqt.utils import getFile, getText
 
-from ir.lib.feedparser import parse
-from ir.settings import SettingsManager
-from ir.util import Article, selectArticles
-
+from ..lib.feedparser import parse
+from ..settings import SettingsManager
+from ..util import Article, selectArticles
 from .base_importer import BaseImporter
 from .epub import getEpubToc
 from .exceptions import ErrorLevel, ImporterError

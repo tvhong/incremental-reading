@@ -20,7 +20,7 @@ from anki.utils import is_mac, is_win
 from aqt.utils import askUser, openLink, showCritical, showInfo
 from requests import post
 
-from ir.util import Article
+from ..util import Article
 
 
 class Pocket:

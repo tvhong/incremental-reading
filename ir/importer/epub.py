@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import List
 from urllib.parse import urlsplit, urlunsplit
 
-from ir.util import Article
+from ..util import Article
 
 
 def nov_container_content_filename(filename):

@@ -5,8 +5,7 @@ from attr import dataclass
 from bs4 import BeautifulSoup
 from requests import get
 
-from ir.settings import SettingsManager
-
+from ..settings import SettingsManager
 from .exceptions import ErrorLevel, ImporterError
 from .html_cleaner import HtmlCleaner
 

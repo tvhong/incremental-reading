@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Get list of Python files that are staged for commit
+files=$(git diff --cached --name-only --diff-filter=d | grep '\.py$' | grep -v '^ir/lib/')
+
+if [ -z "$files" ]; then
+    # No Python files to format
+    exit 0
+fi
+
+echo "Running code formatting on staged files..."
+
+# Create a temporary file to store the file list
+temp_file=$(mktemp)
+echo "$files" > "$temp_file"
+
+# Format only the staged files
+poetry run black --quiet $(cat "$temp_file")
+poetry run isort --quiet $(cat "$temp_file")
+
+# Clean up
+rm "$temp_file"
+
+# Add the formatted files back to staging
+if ! git diff --quiet; then
+    echo "Code formatting created changes. Adding them to the commit..."
+    git add $files
+fi
+
+exit 0

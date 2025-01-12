@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Store the current branch name
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+# Run formatting
+echo "Running code formatting..."
+make format
+
+# Check if there are any changes
+if ! git diff --quiet; then
+    echo "Code formatting created changes. Committing them..."
+    git add .
+    git commit -m "Reformat with git hook"
+    
+    # Push the formatting commit
+    git push origin "$current_branch"
+    
+    # Exit with error to prevent the original push
+    # This ensures the formatting commit is pushed first
+    exit 1
+fi
+
+# If no changes were made by formatting, allow the push to proceed
+exit 0

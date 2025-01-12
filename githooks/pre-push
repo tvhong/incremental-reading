@@ -10,8 +10,20 @@ make format
 # Check if there are any changes
 if ! git diff --quiet; then
     echo "Code formatting created changes. Committing them..."
-    git add .
-    git commit -m "Reformat with git hook"
+
+    # Ask for confirmation before creating a new commit
+    printf "The following files were changed:\n"
+    git diff --name-only HEAD~1
+
+    read -p "Do you want to commit? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        git add .
+        git commit -m "Reformat with git hook"
+    else
+        printf "Aborting commit. You can run 'make format' to apply the changes locally"
+        exit 1
+    fi
     
     # Push the formatting commit
     git push origin "$current_branch"

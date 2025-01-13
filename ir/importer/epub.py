@@ -23,7 +23,7 @@ from urllib.parse import urlsplit, urlunsplit
 from ..util import Article
 
 
-def nov_container_content_filename(filename):
+def nov_container_content_filename(filename: str) -> str:
     """Return the content filename for CONTENT."""
     query = "{*}rootfiles/{*}rootfile[@media-type='application/oebps-package+xml']"
     doc = ET.parse(filename)
@@ -34,7 +34,7 @@ def nov_container_content_filename(filename):
     return "OEBPS/Content.opf"
 
 
-def nov_content_version(root):
+def nov_content_version(root) -> float:
     """Return the EPUB version for ROOT."""
     version = root.get("version") if root is not None else None
     if not version:
@@ -151,7 +151,7 @@ def nov_toc_epub2_files(content_dir, root) -> List[Article]:
     return files
 
 
-def nov_toc_epub3_files(toc_file, root) -> List[Article]:
+def nov_toc_epub3_files(toc_file: str, root) -> List[Article]:
     toc_dir = os.path.dirname(toc_file)
     query = ".//{*}nav//{*}ol/{*}li"
     nav_points = root.findall(query)
@@ -170,23 +170,26 @@ def nov_toc_epub3_files(toc_file, root) -> List[Article]:
     return files
 
 
-def _get_extract_dir(filename):
+def _get_extract_dir(filename: str) -> str:
     "get extract directory by epub filename."
+
     tempdir = tempfile.gettempdir()
-    tempdir = Path(tempdir).as_posix()
+
+    # Use absolute path as Windows sometimes returns a relative path without the drive letter
+    tempdir = Path(tempdir).absolute().as_posix()
     basename = os.path.basename(filename)
     nonextension = os.path.splitext(basename)[0]
     return os.path.join(tempdir, nonextension)
 
 
-def _unzip_epub(file_path):
+def _unzip_epub(file_path: str) -> str:
     extract_dir = _get_extract_dir(file_path)
     with zipfile.ZipFile(file_path, "r") as zip_ref:
         zip_ref.extractall(extract_dir)
     return extract_dir
 
 
-def getEpubToc(epub_file_path) -> List[Article]:
+def getEpubToc(epub_file_path: str) -> List[Article]:
     extract_dir = _unzip_epub(epub_file_path)
     container_filename = os.path.join(extract_dir, "META-INF", "container.xml")
     content_filename = nov_container_content_filename(container_filename)

@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Fix LinkedIn import issue where some images don't have a src attribute (#56).
+- Major refactoring of the import process (#43).
+- (Try to) fix an issue with epub import on Windows where tempfile returns a relative temp path (#37).
 
 ## [4.12.0] - 2024-12-30
 

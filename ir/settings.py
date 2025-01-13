@@ -91,9 +91,10 @@ class SettingsManager:
     }
 
     def __init__(self):
+        self.settings = None
+
         addHook("unloadProfile", self._unload)
         self.load()
-        self.settings = None
 
     def __setitem__(self, key, value):
         if self.settings[key] != value and key not in self.settings["modified"]:

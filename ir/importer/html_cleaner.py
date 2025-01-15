@@ -7,14 +7,14 @@ from bs4 import BeautifulSoup, Comment, Tag
 
 
 class HtmlCleaner:
-    _BAD_TAGS: Set[str] = {"iframe", "script"}
+    _IGNORED_TAGS: Set[str] = {"iframe", "script", "nav"}
 
     def clean(
         self, html: Union[bytes, str], url: str, local: bool = False
     ) -> BeautifulSoup:
         webpage = BeautifulSoup(html, "html.parser")
 
-        for tagName in self._BAD_TAGS:
+        for tagName in self._IGNORED_TAGS:
             for tag in webpage.find_all(tagName):
                 tag.decompose()
 

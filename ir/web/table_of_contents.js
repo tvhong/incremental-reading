@@ -244,13 +244,18 @@ function makeTOCDraggable() {
     let offsetX, offsetY;
     
     tocHeader.addEventListener('mousedown', function(e) {
+        e.preventDefault(); // Prevent text selection during drag
         isDragging = true;
-        offsetX = e.clientX - tocContainer.getBoundingClientRect().left;
-        offsetY = e.clientY - tocContainer.getBoundingClientRect().top;
+        
+        const rect = tocContainer.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
     });
     
     document.addEventListener('mousemove', function(e) {
         if (!isDragging) return;
+        
+        e.preventDefault(); // Prevent any default during drag
         
         const x = e.clientX - offsetX;
         const y = e.clientY - offsetY;
@@ -260,7 +265,7 @@ function makeTOCDraggable() {
         tocContainer.style.right = 'auto';
     });
     
-    document.addEventListener('mouseup', function() {
+    document.addEventListener('mouseup', function(e) {
         isDragging = false;
     });
 }

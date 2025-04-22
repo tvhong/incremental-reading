@@ -14,125 +14,15 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-// Generate table of contents from headings
-function generateTOC() {
-    // Find all heading elements
-    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+// Initialize everything
+function createTableOfContents() {
+    addTOCStyles();
     
-    if (headings.length === 0) {
-        return false; // No headings found, don't create TOC
-    }
-    
-    // Create TOC container
-    const tocContainer = document.createElement('div');
-    tocContainer.id = 'ir-toc-container';
-    tocContainer.className = 'ir-toc-container';
-    
-    // Create TOC header with toggle button
-    const tocHeader = document.createElement('div');
-    tocHeader.className = 'ir-toc-header';
-    tocHeader.innerHTML = '<span>Contents</span><button id="ir-toc-toggle">−</button>';
-    tocContainer.appendChild(tocHeader);
-    
-    // Create TOC content
-    const tocContent = document.createElement('div');
-    tocContent.id = 'ir-toc-content';
-    tocContent.className = 'ir-toc-content';
-    
-    // Create TOC list
-    const tocList = document.createElement('ul');
-    tocList.className = 'ir-toc-list';
-    
-    // Process headings and build TOC
-    headings.forEach((heading, index) => {
-        // Add ID to the heading if it doesn't have one
-        if (!heading.id) {
-            heading.id = 'toc-heading-' + index;
-        }
-        
-        // Create TOC item
-        const tocItem = document.createElement('li');
-        tocItem.className = 'ir-toc-item ir-toc-level-' + heading.tagName.toLowerCase();
-        
-        // Create link
-        const link = document.createElement('a');
-        link.href = '#' + heading.id;
-        link.textContent = heading.textContent;
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Scroll to heading with a slight offset
-            const targetHeading = document.getElementById(heading.id);
-            const topOffset = targetHeading.getBoundingClientRect().top + window.pageYOffset - 20;
-            window.scrollTo({
-                top: topOffset,
-                behavior: 'smooth'
-            });
-            
-            // Update scroll position in settings
-            if (typeof SAVED_POSITION !== 'undefined') {
-                SAVED_POSITION = topOffset;
-            }
-        });
-        
-        tocItem.appendChild(link);
-        tocList.appendChild(tocItem);
-    });
-    
-    tocContent.appendChild(tocList);
-    tocContainer.appendChild(tocContent);
-    
-    // Add TOC to the document
-    document.body.appendChild(tocContainer);
-    
-    // TOC toggle functionality
-    document.getElementById('ir-toc-toggle').addEventListener('click', function() {
-        const tocContent = document.getElementById('ir-toc-content');
-        const isVisible = tocContent.style.display !== 'none';
-        
-        if (isVisible) {
-            tocContent.style.display = 'none';
-            this.textContent = '+';
-        } else {
-            tocContent.style.display = 'block';
-            this.textContent = '−';
-        }
-    });
-    
-    return true;
-}
-
-// Initialize TOC when page is ready
-function initTOC() {
-    // Check if we're in an IR card
-    const isIrCard = document.querySelector('.card') !== null;
-    
-    if (isIrCard) {
-        // Attempt to create TOC
-        const tocCreated = generateTOC();
-        
-        // Add TOC button to page if TOC was created
-        if (tocCreated) {
-            const tocButton = document.createElement('button');
-            tocButton.id = 'ir-toc-button';
-            tocButton.className = 'ir-toc-button';
-            tocButton.textContent = 'TOC';
-            tocButton.title = 'Toggle Table of Contents';
-            
-            tocButton.addEventListener('click', function() {
-                const tocContainer = document.getElementById('ir-toc-container');
-                const isVisible = tocContainer.style.display !== 'none';
-                
-                if (isVisible) {
-                    tocContainer.style.display = 'none';
-                } else {
-                    tocContainer.style.display = 'block';
-                }
-            });
-            
-            document.body.appendChild(tocButton);
-        }
-    }
+    // Use setTimeout to ensure DOM is fully loaded
+    setTimeout(() => {
+        initTOC();
+        makeTOCDraggable();
+    }, 500);
 }
 
 // Add CSS styles for TOC
@@ -239,6 +129,125 @@ function addTOCStyles() {
     document.head.appendChild(style);
 }
 
+// Generate table of contents from headings
+function generateTOC() {
+    // Find all heading elements
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    
+    if (headings.length === 0) {
+        return false; // No headings found, don't create TOC
+    }
+    
+    // Create TOC container
+    const tocContainer = document.createElement('div');
+    tocContainer.id = 'ir-toc-container';
+    tocContainer.className = 'ir-toc-container';
+    
+    // Create TOC header with toggle button
+    const tocHeader = document.createElement('div');
+    tocHeader.className = 'ir-toc-header';
+    tocHeader.innerHTML = '<span>Contents</span><button id="ir-toc-toggle">−</button>';
+    tocContainer.appendChild(tocHeader);
+    
+    // Create TOC content
+    const tocContent = document.createElement('div');
+    tocContent.id = 'ir-toc-content';
+    tocContent.className = 'ir-toc-content';
+    
+    // Create TOC list
+    const tocList = document.createElement('ul');
+    tocList.className = 'ir-toc-list';
+    
+    // Process headings and build TOC
+    headings.forEach((heading, index) => {
+        // Add ID to the heading if it doesn't have one
+        if (!heading.id) {
+            heading.id = 'toc-heading-' + index;
+        }
+        
+        // Create TOC item
+        const tocItem = document.createElement('li');
+        tocItem.className = 'ir-toc-item ir-toc-level-' + heading.tagName.toLowerCase();
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = '#' + heading.id;
+        link.textContent = heading.textContent;
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Scroll to heading with a slight offset
+            const targetHeading = document.getElementById(heading.id);
+            const topOffset = targetHeading.getBoundingClientRect().top + window.pageYOffset - 20;
+            window.scrollTo({
+                top: topOffset,
+                behavior: 'smooth'
+            });
+            
+            // Update scroll position in settings
+            if (typeof SAVED_POSITION !== 'undefined') {
+                SAVED_POSITION = topOffset;
+            }
+        });
+        
+        tocItem.appendChild(link);
+        tocList.appendChild(tocItem);
+    });
+    
+    tocContent.appendChild(tocList);
+    tocContainer.appendChild(tocContent);
+    
+    // Add TOC to the document
+    document.body.appendChild(tocContainer);
+    
+    // TOC toggle functionality
+    document.getElementById('ir-toc-toggle').addEventListener('click', function() {
+        const tocContent = document.getElementById('ir-toc-content');
+        const isVisible = tocContent.style.display !== 'none';
+        
+        if (isVisible) {
+            tocContent.style.display = 'none';
+            this.textContent = '+';
+        } else {
+            tocContent.style.display = 'block';
+            this.textContent = '−';
+        }
+    });
+    
+    return true;
+}
+
+// Initialize TOC when page is ready
+function initTOC() {
+    const isIrCard = document.querySelector('.card') !== null;
+    
+    if (isIrCard) {
+        const tocCreated = generateTOC();
+        
+        // Add TOC button to page if TOC was created
+        if (tocCreated) {
+            const tocButton = document.createElement('button');
+            tocButton.id = 'ir-toc-button';
+            tocButton.className = 'ir-toc-button';
+            tocButton.textContent = 'TOC';
+            tocButton.title = 'Toggle Table of Contents';
+            
+            tocButton.addEventListener('click', function() {
+                const tocContainer = document.getElementById('ir-toc-container');
+                const isVisible = tocContainer.style.display !== 'none';
+                
+                if (isVisible) {
+                    tocContainer.style.display = 'none';
+                } else {
+                    tocContainer.style.display = 'block';
+                }
+            });
+            
+            document.body.appendChild(tocButton);
+        }
+    }
+}
+
 // Make TOC draggable
 function makeTOCDraggable() {
     const tocContainer = document.getElementById('ir-toc-container');
@@ -269,21 +278,10 @@ function makeTOCDraggable() {
     });
 }
 
-// Initialize everything
-function initTableOfContents() {
-    addTOCStyles();
-    
-    // Use setTimeout to ensure DOM is fully loaded
-    setTimeout(() => {
-        initTOC();
-        makeTOCDraggable();
-    }, 500);
-}
-
 // Hook into Anki's onUpdateHook if available
 if (typeof onUpdateHook !== 'undefined') {
-    onUpdateHook.push(initTableOfContents);
+    onUpdateHook.push(createTableOfContents);
 } else {
     // Fallback to window.onload
-    window.addEventListener('load', initTableOfContents);
+    window.addEventListener('load', createTableOfContents);
 }

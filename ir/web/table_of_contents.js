@@ -252,8 +252,6 @@ function makeTOCDraggable() {
         initialY = tocContainer.offsetTop;
         initialMouseX = e.clientX;
         initialMouseY = e.clientY;
-
-        console.log(initialX, initialY, initialMouseX, initialMouseY);
     });
     
     document.addEventListener('mousemove', function(e) {
@@ -267,8 +265,6 @@ function makeTOCDraggable() {
         tocContainer.style.left = (initialX + deltaX) + 'px';
         tocContainer.style.top = (initialY + deltaY) + 'px';
         tocContainer.style.right = 'auto';
-
-        console.log(tocContainer.style.left, tocContainer.style.top);
     });
     
     document.addEventListener('mouseup', function(e) {

@@ -117,13 +117,9 @@ function initTOC() {
     const isIrCard = document.querySelector('.card') !== null;
     
     if (isIrCard) {
-        generateTOC();
+        const tocItems = parseHeadings();
+        return addTocContainerElement(tocItems);
     }
-}
-
-function generateTOC() {
-    const tocItems = parseHeadings();
-    return addTocContainerElement(tocItems);
 }
 
 function parseHeadings() {

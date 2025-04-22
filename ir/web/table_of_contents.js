@@ -43,7 +43,7 @@ function addTOCStyles() {
             z-index: 1000;
             overflow-y: auto;
             font-size: 14px;
-            opacity: 0.9;
+            opacity: 0.5;
             transition: opacity 0.3s;
         }
         

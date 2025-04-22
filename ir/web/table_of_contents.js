@@ -268,10 +268,5 @@ function makeTOCDraggable() {
     });
 }
 
-// Hook into Anki's onUpdateHook if available
-if (typeof onUpdateHook !== 'undefined') {
-    onUpdateHook.push(createTableOfContents);
-} else {
-    // Fallback to window.onload
-    window.addEventListener('load', createTableOfContents);
-}
+// Hook into Anki's onUpdateHook
+onUpdateHook.push(createTableOfContents);

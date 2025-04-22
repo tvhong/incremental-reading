@@ -27,6 +27,7 @@ class ViewManager:
     def __init__(self):
         self._scrollScript = loadFile("web", "scroll.js")
         self._textScript = loadFile("web", "text.js")
+        self._tocScript = loadFile("web", "table_of_contents.js")
         self._zoomFactor = 1
 
         gui_hooks.state_did_change.append(self.resetZoom)
@@ -97,6 +98,7 @@ class ViewManager:
 
             self._setZoom()
             js += self._textScript
+            js += self._tocScript
 
             js += f"""
                 const SAVED_POSITION = {self._settings["scroll"][cid]};

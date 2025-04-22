@@ -1,0 +1,289 @@
+/*
+ * Copyright 2023 
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+ * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+ * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+// Generate table of contents from headings
+function generateTOC() {
+    // Find all heading elements
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    
+    if (headings.length === 0) {
+        return false; // No headings found, don't create TOC
+    }
+    
+    // Create TOC container
+    const tocContainer = document.createElement('div');
+    tocContainer.id = 'ir-toc-container';
+    tocContainer.className = 'ir-toc-container';
+    
+    // Create TOC header with toggle button
+    const tocHeader = document.createElement('div');
+    tocHeader.className = 'ir-toc-header';
+    tocHeader.innerHTML = '<span>Contents</span><button id="ir-toc-toggle">−</button>';
+    tocContainer.appendChild(tocHeader);
+    
+    // Create TOC content
+    const tocContent = document.createElement('div');
+    tocContent.id = 'ir-toc-content';
+    tocContent.className = 'ir-toc-content';
+    
+    // Create TOC list
+    const tocList = document.createElement('ul');
+    tocList.className = 'ir-toc-list';
+    
+    // Process headings and build TOC
+    headings.forEach((heading, index) => {
+        // Add ID to the heading if it doesn't have one
+        if (!heading.id) {
+            heading.id = 'toc-heading-' + index;
+        }
+        
+        // Create TOC item
+        const tocItem = document.createElement('li');
+        tocItem.className = 'ir-toc-item ir-toc-level-' + heading.tagName.toLowerCase();
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = '#' + heading.id;
+        link.textContent = heading.textContent;
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Scroll to heading with a slight offset
+            const targetHeading = document.getElementById(heading.id);
+            const topOffset = targetHeading.getBoundingClientRect().top + window.pageYOffset - 20;
+            window.scrollTo({
+                top: topOffset,
+                behavior: 'smooth'
+            });
+            
+            // Update scroll position in settings
+            if (typeof SAVED_POSITION !== 'undefined') {
+                SAVED_POSITION = topOffset;
+            }
+        });
+        
+        tocItem.appendChild(link);
+        tocList.appendChild(tocItem);
+    });
+    
+    tocContent.appendChild(tocList);
+    tocContainer.appendChild(tocContent);
+    
+    // Add TOC to the document
+    document.body.appendChild(tocContainer);
+    
+    // TOC toggle functionality
+    document.getElementById('ir-toc-toggle').addEventListener('click', function() {
+        const tocContent = document.getElementById('ir-toc-content');
+        const isVisible = tocContent.style.display !== 'none';
+        
+        if (isVisible) {
+            tocContent.style.display = 'none';
+            this.textContent = '+';
+        } else {
+            tocContent.style.display = 'block';
+            this.textContent = '−';
+        }
+    });
+    
+    return true;
+}
+
+// Initialize TOC when page is ready
+function initTOC() {
+    // Check if we're in an IR card
+    const isIrCard = document.querySelector('.card') !== null;
+    
+    if (isIrCard) {
+        // Attempt to create TOC
+        const tocCreated = generateTOC();
+        
+        // Add TOC button to page if TOC was created
+        if (tocCreated) {
+            const tocButton = document.createElement('button');
+            tocButton.id = 'ir-toc-button';
+            tocButton.className = 'ir-toc-button';
+            tocButton.textContent = 'TOC';
+            tocButton.title = 'Toggle Table of Contents';
+            
+            tocButton.addEventListener('click', function() {
+                const tocContainer = document.getElementById('ir-toc-container');
+                const isVisible = tocContainer.style.display !== 'none';
+                
+                if (isVisible) {
+                    tocContainer.style.display = 'none';
+                } else {
+                    tocContainer.style.display = 'block';
+                }
+            });
+            
+            document.body.appendChild(tocButton);
+        }
+    }
+}
+
+// Add CSS styles for TOC
+function addTOCStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .ir-toc-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 250px;
+            max-height: 80vh;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow-y: auto;
+            font-size: 14px;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+        
+        .ir-toc-container:hover {
+            opacity: 1;
+        }
+        
+        .ir-toc-header {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            font-weight: bold;
+        }
+        
+        #ir-toc-toggle {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .ir-toc-content {
+            padding: 10px;
+        }
+        
+        .ir-toc-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .ir-toc-item {
+            margin: 5px 0;
+        }
+        
+        .ir-toc-item a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            padding: 2px 0;
+        }
+        
+        .ir-toc-item a:hover {
+            color: #3498db;
+        }
+        
+        .ir-toc-level-h1 { margin-left: 0; }
+        .ir-toc-level-h2 { margin-left: 10px; }
+        .ir-toc-level-h3 { margin-left: 20px; }
+        .ir-toc-level-h4 { margin-left: 30px; }
+        .ir-toc-level-h5 { margin-left: 40px; }
+        .ir-toc-level-h6 { margin-left: 50px; }
+        
+        .ir-toc-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .ir-toc-button:hover {
+            background-color: #2980b9;
+        }
+    `;
+    
+    document.head.appendChild(style);
+}
+
+// Make TOC draggable
+function makeTOCDraggable() {
+    const tocContainer = document.getElementById('ir-toc-container');
+    const tocHeader = document.querySelector('.ir-toc-header');
+    
+    let isDragging = false;
+    let offsetX, offsetY;
+    
+    tocHeader.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        offsetX = e.clientX - tocContainer.getBoundingClientRect().left;
+        offsetY = e.clientY - tocContainer.getBoundingClientRect().top;
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        const x = e.clientX - offsetX;
+        const y = e.clientY - offsetY;
+        
+        tocContainer.style.left = x + 'px';
+        tocContainer.style.top = y + 'px';
+        tocContainer.style.right = 'auto';
+    });
+    
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+    });
+}
+
+// Initialize everything
+function initTableOfContents() {
+    addTOCStyles();
+    
+    // Use setTimeout to ensure DOM is fully loaded
+    setTimeout(() => {
+        initTOC();
+        makeTOCDraggable();
+    }, 500);
+}
+
+// Hook into Anki's onUpdateHook if available
+if (typeof onUpdateHook !== 'undefined') {
+    onUpdateHook.push(initTableOfContents);
+} else {
+    // Fallback to window.onload
+    window.addEventListener('load', initTableOfContents);
+}

@@ -210,11 +210,6 @@ function createTocContainer(tocItems) {
                 top: topOffset,
                 behavior: 'smooth'
             });
-            
-            // Update scroll position in settings
-            if (typeof SAVED_POSITION !== 'undefined') {
-                SAVED_POSITION = topOffset;
-            }
         });
         
         tocItem.appendChild(link);

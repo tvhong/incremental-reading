@@ -22,6 +22,8 @@ include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pyqt6 = "^6.9.0"
+pyqt6-webengine = "^6.9.0"
 
 
 [tool.poetry.group.dev.dependencies]

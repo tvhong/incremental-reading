@@ -26,7 +26,7 @@ all: install-deps test
 
 install-deps:
 	@echo "Installing dependencies..."
-	poetry install --sync --no-root
+	poetry install --sync --no-root --with dev
 
 lint:
 	@echo "Linting code..."

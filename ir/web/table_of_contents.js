@@ -129,19 +129,29 @@ function addTOCStyles() {
     document.head.appendChild(style);
 }
 
-// Generate table of contents from headings
+function initTOC() {
+    const isIrCard = document.querySelector('.card') !== null;
+    
+    if (isIrCard) {
+        generateTOC();
+    }
+}
+
+function generateTOC() {
+    const tocItems = parseHeadings();
+    return createTocContainer(tocItems);
+}
+
 function parseHeadings() {
-    // Find all heading elements
     const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
     
     if (headings.length === 0) {
-        return null; // No headings found
+        return null;
     }
 
-    // Process headings
     const tocItems = [];
     headings.forEach((heading, index) => {
-        // Add ID to the heading if it doesn't have one
+        // Add IDs if doesn't exist, so we can link to it
         if (!heading.id) {
             heading.id = 'toc-heading-' + index;
         }
@@ -232,19 +242,6 @@ function createTocContainer(tocItems) {
     });
     
     return true;
-}
-
-function generateTOC() {
-    const tocItems = parseHeadings();
-    return createTocContainer(tocItems);
-}
-
-function initTOC() {
-    const isIrCard = document.querySelector('.card') !== null;
-    
-    if (isIrCard) {
-        generateTOC();
-    }
 }
 
 function makeTOCDraggable() {

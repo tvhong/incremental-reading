@@ -97,11 +97,13 @@ class ViewManager:
 
             self._setZoom()
             js += self._textScript
-            js += self._scrollScript.format(
-                savedPos=self._settings["scroll"][cid],
-                lineScrollFactor=self._settings["lineScrollFactor"],
-                pageScrollFactor=self._settings["pageScrollFactor"],
-            )
+
+            js += f"""
+                const SAVED_POSITION = {self._settings["scroll"][cid]};
+                const LINE_SCROLL_FACTOR = {self._settings["lineScrollFactor"]};
+                const PAGE_SCROLL_FACTOR = {self._settings["pageScrollFactor"]};
+            """
+            js += self._scrollScript
 
         if js:
             html += "<script>" + js + "</script>"

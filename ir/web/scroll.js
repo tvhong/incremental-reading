@@ -14,27 +14,29 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-function restoreScroll() {{
-    window.scrollTo(0, {savedPos});
-}}
+// Parameters are set in the Python code
 
-function getMovementFactor(keyCode) {{
-    switch (keyCode) {{
+function restoreScroll() {
+    window.scrollTo(0, SAVED_POSITION);
+}
+
+function getMovementFactor(keyCode) {
+    switch (keyCode) {
         case "ArrowUp":
-            return -{lineScrollFactor};
+            return -LINE_SCROLL_FACTOR;
         case "ArrowDown":
-            return {lineScrollFactor};
+            return LINE_SCROLL_FACTOR;
         case "PageUp":
-            return -{pageScrollFactor};
+            return -PAGE_SCROLL_FACTOR;
         case "PageDown":
-            return {pageScrollFactor};
+            return PAGE_SCROLL_FACTOR;
         default:
             return 0;
-    }}
-}}
+    }
+}
 
-document.addEventListener("keydown", (e) => {{
-    if (["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.code)) {{
+document.addEventListener("keydown", (e) => {
+    if (["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.code)) {
         let currentPos = window.pageYOffset;
 
         let movementSize = window.innerHeight * getMovementFactor(e.code);
@@ -45,7 +47,7 @@ document.addEventListener("keydown", (e) => {{
         window.scrollTo(0, newPos);
 
         e.preventDefault();
-    }}
-}});
+    }
+});
 
 onUpdateHook.push(restoreScroll);

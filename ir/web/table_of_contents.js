@@ -51,7 +51,8 @@ function addTOCStyles() {
         }
         
         .ir-toc-header {
-            padding: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
             background-color: #f5f5f5;
             border-bottom: 1px solid #ddd;
             display: flex;
@@ -103,27 +104,6 @@ function addTOCStyles() {
         .ir-toc-level-h4 { margin-left: 30px; }
         .ir-toc-level-h5 { margin-left: 40px; }
         .ir-toc-level-h6 { margin-left: 50px; }
-        
-        .ir-toc-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .ir-toc-button:hover {
-            background-color: #2980b9;
-        }
     `;
     
     document.head.appendChild(style);

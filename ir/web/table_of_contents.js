@@ -178,22 +178,7 @@ function createTocContainer(tocItems) {
     const tocHeader = createTocHeaderElement();
     tocContainer.appendChild(tocHeader);
     
-    const tocContent = document.createElement('div');
-    tocContent.id = 'ir-toc-content';
-    tocContent.className = 'ir-toc-content';
-    
-    const tocList = document.createElement('ul');
-    tocList.className = 'ir-toc-list';
-    
-    tocItems.forEach(item => {
-        const tocItem = document.createElement('li');
-        tocItem.className = 'ir-toc-item ir-toc-level-' + item.level;
-        
-        tocItem.appendChild(createItemLinkElement(item));
-        tocList.appendChild(tocItem);
-    });
-    
-    tocContent.appendChild(tocList);
+    const tocContent = createTocContentElement(tocItems);
     tocContainer.appendChild(tocContent);
     
     document.body.appendChild(tocContainer);
@@ -219,6 +204,26 @@ function createTocHeaderElement() {
     header.className = 'ir-toc-header';
     header.innerHTML = '<span>TOC</span><button id="ir-toc-toggle">−</button>';
     return header;
+}
+
+function createTocContentElement(tocItems) {
+    const tocContent = document.createElement('div');
+    tocContent.id = 'ir-toc-content';
+    tocContent.className = 'ir-toc-content';
+    
+    const tocList = document.createElement('ul');
+    tocList.className = 'ir-toc-list';
+    
+    tocItems.forEach(item => {
+        const tocItem = document.createElement('li');
+        tocItem.className = 'ir-toc-item ir-toc-level-' + item.level;
+        
+        tocItem.appendChild(createItemLinkElement(item));
+        tocList.appendChild(tocItem);
+    });
+    
+    tocContent.appendChild(tocList);
+    return tocContent;
 }
 
 function createItemLinkElement(item) {

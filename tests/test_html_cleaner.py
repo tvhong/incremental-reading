@@ -38,7 +38,6 @@ class HtmlCleanerTests(TestCase):
         assert result.find("p").text == "Some text"
         assert result.find("div").text == "More content"
 
-
     def _get_sut(self):
         from ir.importer.html_cleaner import HtmlCleaner
 

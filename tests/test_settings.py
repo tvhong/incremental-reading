@@ -1,62 +1,103 @@
+from unittest import TestCase
 from unittest.mock import MagicMock, mock_open, patch
 
-from . import SettingsTests
 
+class SettingsTests(TestCase):
+    def setUp(self):
+        # TODO: use patch.dict for all
+        modules = {
+            "anki.hooks": MagicMock(),
+            "aqt": MagicMock(),
+            "aqt.mw": MagicMock(),
+            "aqt.utils": MagicMock(),
+            "ir.about": MagicMock(),
+            "ir.main": MagicMock(),
+            "ir.util": MagicMock(),
+            "ir.settings.json.load": MagicMock(),
+            "ir.settings.mw.pm.profileFolder": MagicMock(return_value=str()),
+            "ir.settings.open": mock_open(),
+            "ir.settings.os.path.isfile": MagicMock(return_value=True)
+        }
+        self.patcher = patch.dict("sys.modules", modules)
+        self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
+
+    def _create_sut(self):
+        from ir.settings import SettingsManager
+
+        return SettingsManager()
 
 class SaveTests(SettingsTests):
     def test_save(self):
         open_mock = mock_open()
         dump_mock = MagicMock()
-        open_patcher = patch("ir.settings.open", open_mock)
-        dump_patcher = patch("ir.settings.json.dump", dump_mock)
-        open_patcher.start()
-        dump_patcher.start()
-        self.sm.getSettingsPath = MagicMock(return_value="foo.json")
-        self.sm.settings = {"foo": "bar"}
-        self.sm.save()
-        open_mock.assert_called_once_with("foo.json", "w", encoding="utf-8")
-        dump_mock.assert_called_once_with({"foo": "bar"}, open_mock())
-        dump_patcher.stop()
+        with patch("ir.settings.open", open_mock):
+            with patch("ir.settings.json.dump", dump_mock):
+                sut = self._create_sut()
+                sut.getSettingsPath = MagicMock(return_value="foo.json")
+                sut.settings = {"foo": "bar"}
+                sut.save()
+
+                open_mock.assert_called_once_with("foo.json", "w", encoding="utf-8")
+                dump_mock.assert_called_once_with({"foo": "bar"}, open_mock())
 
 
 class PathTests(SettingsTests):
     def test_getMediaDir(self):
         with patch("ir.settings.mw.pm.profileFolder", MagicMock(return_value="foo")):
-            self.assertEqual(self.sm.getMediaDir(), "foo/collection.media")
+            sut = self._create_sut()
+
+            self.assertEqual(sut.getMediaDir(), "foo/collection.media")
 
     def test_getSettingsPath(self):
-        self.sm.getMediaDir = MagicMock(return_value="foo")
-        self.assertEqual(self.sm.getSettingsPath(), "foo/_ir.json")
+        sut = self._create_sut()
+
+        sut.getMediaDir = MagicMock(return_value="foo")
+
+        self.assertEqual(sut.getSettingsPath(), "foo/_ir.json")
 
 
 class ValidateFormatStringsTests(SettingsTests):
     def test_valid(self):
-        self.sm.defaults = {"fooFormat": "{foo} {bar}", "barFormat": "{baz} {qux}"}
-        self.sm.settings = self.sm.defaults.copy()
-        self.sm.requiredFormatKeys = {
+        sut = self._create_sut()
+
+        sut.defaults = {"fooFormat": "{foo} {bar}", "barFormat": "{baz} {qux}"}
+        sut.settings = sut.defaults.copy()
+        sut.requiredFormatKeys = {
             "fooFormat": ["foo", "bar"],
             "barFormat": ["baz", "qux"],
         }
-        self.sm._validateFormatStrings()
-        self.assertEqual(self.sm.settings, self.sm.defaults)
+        sut._validateFormatStrings()
+
+        self.assertEqual(sut.settings, sut.defaults)
 
     def test_invalid(self):
-        self.sm.defaults = {"fooFormat": "{foo} {bar}", "barFormat": "{baz} {qux}"}
+        sut = self._create_sut()
+
+        sut.defaults = {"fooFormat": "{foo} {bar}", "barFormat": "{baz} {qux}"}
         invalidSettings = {"fooFormat": "{baz} {qux}", "barFormat": "{foo} {bar}"}
-        self.sm.settings = invalidSettings
-        self.sm.requiredFormatKeys = {
+        sut.settings = invalidSettings
+        sut.requiredFormatKeys = {
             "fooFormat": ["foo", "bar"],
             "barFormat": ["baz", "qux"],
         }
-        self.sm._validateFormatStrings()
-        self.assertEqual(self.sm.settings, self.sm.defaults)
+
+        sut._validateFormatStrings()
+
+        self.assertEqual(sut.settings, sut.defaults)
 
 
 class ValidFormatTests(SettingsTests):
     def test_valid(self):
-        self.sm.requiredFormatKeys = {"test": ["foo", "bar", "baz"]}
-        self.assertTrue(self.sm.validFormat("test", "{foo} {bar} {baz}"))
+        sut = self._create_sut()
+
+        sut.requiredFormatKeys = {"test": ["foo", "bar", "baz"]}
+        self.assertTrue(sut.validFormat("test", "{foo} {bar} {baz}"))
 
     def test_invalid(self):
-        self.sm.requiredFormatKeys = {"test": ["foo", "bar", "baz"]}
-        self.assertFalse(self.sm.validFormat("test", "{foo} {baz}"))
+        sut = self._create_sut()
+
+        sut.requiredFormatKeys = {"test": ["foo", "bar", "baz"]}
+        self.assertFalse(sut.validFormat("test", "{foo} {baz}"))

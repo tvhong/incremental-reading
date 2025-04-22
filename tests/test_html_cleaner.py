@@ -1,9 +1,13 @@
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
+
 
 class HtmlCleanerTests(TestCase):
     def setUp(self):
-        self.patcher = patch("aqt.mw", return_value=None)
+        modules = {
+            "aqt": MagicMock(),
+        }
+        self.patcher = patch.dict("sys.modules", modules)
         self.patcher.start()
 
     def tearDown(self):

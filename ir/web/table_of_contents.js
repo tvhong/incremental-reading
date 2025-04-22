@@ -51,11 +51,13 @@ function addTOCStyles() {
         }
         
         .ir-toc-header {
-            padding-left: 10px;
+            margin: auto;
+            padding-left: 15px;
             padding-right: 10px;
             background-color: #f5f5f5;
             border-bottom: 1px solid #ddd;
             display: flex;
+            font-size: 16px;
             justify-content: space-between;
             align-items: center;
             cursor: move;

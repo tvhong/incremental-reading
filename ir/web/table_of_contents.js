@@ -130,14 +130,37 @@ function addTOCStyles() {
 }
 
 // Generate table of contents from headings
-function generateTOC() {
+function parseHeadings() {
     // Find all heading elements
     const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
     
     if (headings.length === 0) {
-        return false; // No headings found, don't create TOC
+        return null; // No headings found
     }
-    
+
+    // Process headings
+    const tocItems = [];
+    headings.forEach((heading, index) => {
+        // Add ID to the heading if it doesn't have one
+        if (!heading.id) {
+            heading.id = 'toc-heading-' + index;
+        }
+        
+        tocItems.push({
+            id: heading.id,
+            text: heading.textContent,
+            level: heading.tagName.toLowerCase()
+        });
+    });
+
+    return tocItems;
+}
+
+function createTocContainer(tocItems) {
+    if (!tocItems) {
+        return false;
+    }
+
     // Create TOC container
     const tocContainer = document.createElement('div');
     tocContainer.id = 'ir-toc-container';
@@ -158,27 +181,21 @@ function generateTOC() {
     const tocList = document.createElement('ul');
     tocList.className = 'ir-toc-list';
     
-    // Process headings and build TOC
-    headings.forEach((heading, index) => {
-        // Add ID to the heading if it doesn't have one
-        if (!heading.id) {
-            heading.id = 'toc-heading-' + index;
-        }
-        
-        // Create TOC item
+    // Build TOC items
+    tocItems.forEach(item => {
         const tocItem = document.createElement('li');
-        tocItem.className = 'ir-toc-item ir-toc-level-' + heading.tagName.toLowerCase();
+        tocItem.className = 'ir-toc-item ir-toc-level-' + item.level;
         
         // Create link
         const link = document.createElement('a');
-        link.href = '#' + heading.id;
-        link.textContent = heading.textContent;
+        link.href = '#' + item.id;
+        link.textContent = item.text;
         link.addEventListener('click', function(e) {
             e.preventDefault();
             
             // Scroll to heading with a slight offset
-            const targetHeading = document.getElementById(heading.id);
-            const topOffset = targetHeading.getBoundingClientRect().top + window.pageYOffset - 20;
+            const targetHeading = document.getElementById(item.id);
+            const topOffset = targetHeading.getBoundingClientRect().top + window.scrollY - 20;
             window.scrollTo({
                 top: topOffset,
                 behavior: 'smooth'
@@ -217,7 +234,11 @@ function generateTOC() {
     return true;
 }
 
-// Initialize TOC when page is ready
+function generateTOC() {
+    const tocItems = parseHeadings();
+    return createTocContainer(tocItems);
+}
+
 function initTOC() {
     const isIrCard = document.querySelector('.card') !== null;
     
@@ -226,7 +247,6 @@ function initTOC() {
     }
 }
 
-// Make TOC draggable
 function makeTOCDraggable() {
     const tocContainer = document.getElementById('ir-toc-container');
     const tocHeader = document.querySelector('.ir-toc-header');

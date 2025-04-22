@@ -76,6 +76,7 @@ function addTOCStyles() {
         }
         
         .ir-toc-content {
+            margin: auto;
             padding: 10px;
         }
         
@@ -224,7 +225,6 @@ function createItemLinkElement(item) {
         e.preventDefault();
         
         // Scroll to heading with a slight offset
-        // use window.scrollY to handle top and bottom of the page
         const targetHeading = document.getElementById(item.id);
         const topOffset = targetHeading.getBoundingClientRect().top + window.scrollY - 20;
         window.scrollTo({

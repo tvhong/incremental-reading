@@ -146,7 +146,7 @@ function generateTOC() {
     // Create TOC header with toggle button
     const tocHeader = document.createElement('div');
     tocHeader.className = 'ir-toc-header';
-    tocHeader.innerHTML = '<span>Contents</span><button id="ir-toc-toggle">−</button>';
+    tocHeader.innerHTML = '<span>TOC</span><button id="ir-toc-toggle">−</button>';
     tocContainer.appendChild(tocHeader);
     
     // Create TOC content
@@ -222,29 +222,7 @@ function initTOC() {
     const isIrCard = document.querySelector('.card') !== null;
     
     if (isIrCard) {
-        const tocCreated = generateTOC();
-        
-        // Add TOC button to page if TOC was created
-        if (tocCreated) {
-            const tocButton = document.createElement('button');
-            tocButton.id = 'ir-toc-button';
-            tocButton.className = 'ir-toc-button';
-            tocButton.textContent = 'TOC';
-            tocButton.title = 'Toggle Table of Contents';
-            
-            tocButton.addEventListener('click', function() {
-                const tocContainer = document.getElementById('ir-toc-container');
-                const isVisible = tocContainer.style.display !== 'none';
-                
-                if (isVisible) {
-                    tocContainer.style.display = 'none';
-                } else {
-                    tocContainer.style.display = 'block';
-                }
-            });
-            
-            document.body.appendChild(tocButton);
-        }
+        generateTOC();
     }
 }
 

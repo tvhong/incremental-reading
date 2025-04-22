@@ -31,18 +31,19 @@ class SettingsTests(TestCase):
 
 class SaveTests(SettingsTests):
     def test_save(self):
-        open_mock = mock_open()
-        dump_mock = MagicMock()
-        with patch("ir.settings.open", open_mock):
-            with patch("ir.settings.json.dump", dump_mock):
-                sut = self._create_sut()
-                sut.getSettingsPath = MagicMock(return_value="foo.json")
-                sut.settings = {"foo": "bar"}
-                sut.save()
+        with patch("ir.settings.open", mock_open()) as open_mock, \
+            patch("ir.settings.json.dump", MagicMock()) as dump_mock, \
+            patch("ir.settings.updateModificationTime", MagicMock()) as update_mock:
 
-                open_mock.assert_called_once_with("foo.json", "w", encoding="utf-8")
-                dump_mock.assert_called_once_with({"foo": "bar"}, open_mock())
+            sut = self._create_sut()
 
+            sut.getSettingsPath = MagicMock(return_value="foo.json")
+            sut.settings = {"foo": "bar"}
+            sut.save()
+
+            open_mock.assert_called_once_with("foo.json", "w", encoding="utf-8")
+            dump_mock.assert_called_once_with({"foo": "bar"}, open_mock())
+            update_mock.assert_called_once()
 
 class PathTests(SettingsTests):
     def test_getMediaDir(self):

@@ -12,8 +12,11 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-from aqt import mw
+import os
 
-from .main import ReadingManager
+if not os.environ.get("IR_TESTING"):
+    from aqt import mw
 
-mw.readingManager = ReadingManager()
+    from .main import ReadingManager
+
+    mw.readingManager = ReadingManager()

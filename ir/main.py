@@ -27,7 +27,7 @@ from aqt.reviewer import Reviewer
 
 from .about import showAbout
 from .gui import SettingsDialog
-from .importer import Importer
+from .importer.importer import Importer
 from .schedule import Scheduler
 from .settings import SettingsManager
 from .text import TextManager

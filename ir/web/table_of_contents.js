@@ -14,14 +14,18 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-// Initialize everything
 function createTableOfContents() {
     addTOCStyles();
     
     // Use setTimeout to ensure DOM is fully loaded
     setTimeout(() => {
-        initTOC();
-        makeTOCDraggable();
+        const isIrCard = document.querySelector('.card') !== null;
+        
+        if (isIrCard) {
+            const tocItems = parseHeadings();
+            addTocContainerElement(tocItems);
+            makeTocDraggable();
+        }
     }, 500);
 }
 
@@ -111,15 +115,6 @@ function addTOCStyles() {
     `;
     
     document.head.appendChild(style);
-}
-
-function initTOC() {
-    const isIrCard = document.querySelector('.card') !== null;
-    
-    if (isIrCard) {
-        const tocItems = parseHeadings();
-        return addTocContainerElement(tocItems);
-    }
 }
 
 function parseHeadings() {
@@ -233,7 +228,7 @@ function createItemLinkElement(item) {
     return link;
 }
 
-function makeTOCDraggable() {
+function makeTocDraggable() {
     const tocContainer = document.getElementById('ir-toc-container');
     const tocHeader = document.querySelector('.ir-toc-header');
     

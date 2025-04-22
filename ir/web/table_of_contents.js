@@ -19,13 +19,9 @@ function createTableOfContents() {
     
     // Use setTimeout to ensure DOM is fully loaded
     setTimeout(() => {
-        const isIrCard = document.querySelector('.card') !== null;
-        
-        if (isIrCard) {
-            const tocItems = parseHeadings();
-            addTocContainerElement(tocItems);
-            makeTocDraggable();
-        }
+        const tocItems = parseHeadings();
+        addTocContainerElement(tocItems);
+        makeTocDraggable();
     }, 500);
 }
 
@@ -262,5 +258,5 @@ function makeTocDraggable() {
     });
 }
 
-// Hook into Anki's onUpdateHook
+// Hook into Anki's onUpdateHook (https://addon-docs.ankiweb.net/reviewer-javascript.html)
 onUpdateHook.push(createTableOfContents);

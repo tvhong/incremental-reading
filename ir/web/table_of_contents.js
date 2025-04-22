@@ -15,7 +15,7 @@
  */
 
 function createTableOfContents() {
-    addTOCStyles();
+    addTocStyles();
     
     // Use setTimeout to ensure DOM is fully loaded
     setTimeout(() => {
@@ -29,8 +29,7 @@ function createTableOfContents() {
     }, 500);
 }
 
-// Add CSS styles for TOC
-function addTOCStyles() {
+function addTocStyles() {
     const style = document.createElement('style');
     style.textContent = `
         .ir-toc-container {

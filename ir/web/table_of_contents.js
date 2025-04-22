@@ -191,28 +191,11 @@ function createTocContainer(tocItems) {
     const tocList = document.createElement('ul');
     tocList.className = 'ir-toc-list';
     
-    // Build TOC items
     tocItems.forEach(item => {
         const tocItem = document.createElement('li');
         tocItem.className = 'ir-toc-item ir-toc-level-' + item.level;
         
-        // Create link
-        const link = document.createElement('a');
-        link.href = '#' + item.id;
-        link.textContent = item.text;
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Scroll to heading with a slight offset
-            const targetHeading = document.getElementById(item.id);
-            const topOffset = targetHeading.getBoundingClientRect().top + window.scrollY - 20;
-            window.scrollTo({
-                top: topOffset,
-                behavior: 'smooth'
-            });
-        });
-        
-        tocItem.appendChild(link);
+        tocItem.appendChild(createItemLinkElement(item));
         tocList.appendChild(tocItem);
     });
     
@@ -237,6 +220,26 @@ function createTocContainer(tocItems) {
     });
     
     return true;
+}
+
+function createItemLinkElement(item) {
+    const link = document.createElement('a');
+    link.href = '#' + item.id;
+    link.textContent = item.text;
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Scroll to heading with a slight offset
+        // use window.scrollY to handle top and bottom of the page
+        const targetHeading = document.getElementById(item.id);
+        const topOffset = targetHeading.getBoundingClientRect().top + window.scrollY - 20;
+        window.scrollTo({
+            top: topOffset,
+            behavior: 'smooth'
+        });
+    });
+
+    return link;
 }
 
 function makeTOCDraggable() {

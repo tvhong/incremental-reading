@@ -35,6 +35,7 @@ function addTOCStyles() {
             right: 20px;
             width: 250px;
             max-height: 80vh;
+            margin: auto; /* Needed so ToC container doesn't drop when dragged */
             background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 5px;

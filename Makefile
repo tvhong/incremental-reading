@@ -39,7 +39,7 @@ format:
 
 test:
 	@echo "Running tests..."
-	poetry run pytest --cov="$(PROJECT_SHORT)" tests -v
+	poetry run pytest -W ignore::DeprecationWarning --cov="$(PROJECT_SHORT)" tests -v
 
 check: lint test
 

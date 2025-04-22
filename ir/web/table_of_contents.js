@@ -241,28 +241,33 @@ function makeTOCDraggable() {
     const tocHeader = document.querySelector('.ir-toc-header');
     
     let isDragging = false;
-    let offsetX, offsetY;
+    let initialX, initialY, initialMouseX, initialMouseY;
     
     tocHeader.addEventListener('mousedown', function(e) {
         e.preventDefault(); // Prevent text selection during drag
         isDragging = true;
         
-        const rect = tocContainer.getBoundingClientRect();
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
+        initialX = tocContainer.offsetLeft;
+        initialY = tocContainer.offsetTop;
+        initialMouseX = e.clientX;
+        initialMouseY = e.clientY;
+
+        console.log(initialX, initialY, initialMouseX, initialMouseY);
     });
     
     document.addEventListener('mousemove', function(e) {
         if (!isDragging) return;
         
-        e.preventDefault(); // Prevent any default during drag
+        e.preventDefault();
         
-        const x = e.clientX - offsetX;
-        const y = e.clientY - offsetY;
+        const deltaX = e.clientX - initialMouseX;
+        const deltaY = e.clientY - initialMouseY;
         
-        tocContainer.style.left = x + 'px';
-        tocContainer.style.top = y + 'px';
+        tocContainer.style.left = (initialX + deltaX) + 'px';
+        tocContainer.style.top = (initialY + deltaY) + 'px';
         tocContainer.style.right = 'auto';
+
+        console.log(tocContainer.style.left, tocContainer.style.top);
     });
     
     document.addEventListener('mouseup', function(e) {

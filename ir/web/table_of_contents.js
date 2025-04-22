@@ -171,23 +171,17 @@ function createTocContainer(tocItems) {
         return false;
     }
 
-    // Create TOC container
     const tocContainer = document.createElement('div');
     tocContainer.id = 'ir-toc-container';
     tocContainer.className = 'ir-toc-container';
     
-    // Create TOC header with toggle button
-    const tocHeader = document.createElement('div');
-    tocHeader.className = 'ir-toc-header';
-    tocHeader.innerHTML = '<span>TOC</span><button id="ir-toc-toggle">−</button>';
+    const tocHeader = createTocHeaderElement();
     tocContainer.appendChild(tocHeader);
     
-    // Create TOC content
     const tocContent = document.createElement('div');
     tocContent.id = 'ir-toc-content';
     tocContent.className = 'ir-toc-content';
     
-    // Create TOC list
     const tocList = document.createElement('ul');
     tocList.className = 'ir-toc-list';
     
@@ -202,10 +196,8 @@ function createTocContainer(tocItems) {
     tocContent.appendChild(tocList);
     tocContainer.appendChild(tocContent);
     
-    // Add TOC to the document
     document.body.appendChild(tocContainer);
     
-    // TOC toggle functionality
     document.getElementById('ir-toc-toggle').addEventListener('click', function() {
         const tocContent = document.getElementById('ir-toc-content');
         const isVisible = tocContent.style.display !== 'none';
@@ -220,6 +212,13 @@ function createTocContainer(tocItems) {
     });
     
     return true;
+}
+
+function createTocHeaderElement() {
+    const header = document.createElement('div');
+    header.className = 'ir-toc-header';
+    header.innerHTML = '<span>TOC</span><button id="ir-toc-toggle">−</button>';
+    return header;
 }
 
 function createItemLinkElement(item) {

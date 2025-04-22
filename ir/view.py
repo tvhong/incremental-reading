@@ -84,10 +84,11 @@ class ViewManager:
         else:
             mw.web.setZoomFactor(self._settings["zoom"][str(mw.reviewer.card.id)])
 
-    def _prepareCard(self, html: str, card: Card, kind: str) -> str:
+    def _prepareCard(self, html: str, card: Card, context: str) -> str:
         js = ""
 
-        if isIrCard(card) and kind.startswith("review"):
+        # For available contexts, see: https://addon-docs.ankiweb.net/reviewer-javascript.html
+        if isIrCard(card) and context.endswith("Question"):
             cid = str(card.id)
 
             if cid not in self._settings["zoom"]:
@@ -101,9 +102,9 @@ class ViewManager:
             js += self._tocScript
 
             js += f"""
-                const SAVED_POSITION = {self._settings["scroll"][cid]};
-                const LINE_SCROLL_FACTOR = {self._settings["lineScrollFactor"]};
-                const PAGE_SCROLL_FACTOR = {self._settings["pageScrollFactor"]};
+const SAVED_POSITION = {self._settings["scroll"][cid]};
+const LINE_SCROLL_FACTOR = {self._settings["lineScrollFactor"]};
+const PAGE_SCROLL_FACTOR = {self._settings["pageScrollFactor"]};
             """
             js += self._scrollScript
 

@@ -139,7 +139,7 @@ function initTOC() {
 
 function generateTOC() {
     const tocItems = parseHeadings();
-    return createTocContainer(tocItems);
+    return addTocContainerElement(tocItems);
 }
 
 function parseHeadings() {
@@ -166,14 +166,12 @@ function parseHeadings() {
     return tocItems;
 }
 
-function createTocContainer(tocItems) {
+function addTocContainerElement(tocItems) {
     if (!tocItems) {
         return false;
     }
 
-    const tocContainer = document.createElement('div');
-    tocContainer.id = 'ir-toc-container';
-    tocContainer.className = 'ir-toc-container';
+    const tocContainer = createTocContainerElement();
     
     const tocHeader = createTocHeaderElement();
     tocContainer.appendChild(tocHeader);
@@ -184,6 +182,13 @@ function createTocContainer(tocItems) {
     document.body.appendChild(tocContainer);
     
     return true;
+}
+
+function createTocContainerElement() {
+    const container = document.createElement('div');
+    container.id = 'ir-toc-container';
+    container.className = 'ir-toc-container';
+    return container;
 }
 
 function createTocHeaderElement() {

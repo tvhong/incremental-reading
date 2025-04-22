@@ -1,19 +1,30 @@
+# Backup files
 *~
-.coverage
-.mypy_cache/
-.python-version
-.ropeproject/
-__pycache__
-meta.json
-.idea
-.vscode
-incremental-reading-v*.zip
 
-# asdf tool versions
-.tool-versions
+# Local Python version
+.python-version
+
+# Python bytecode cache
+__pycache__
+
+# MyPy type checking cache
+.mypy_cache/
+
+# Code coverage reports
+.coverage
+
+# JetBrains IDE settings
+.idea
+
+# Visual Studio Code settings
+.vscode
 
 # virtual environment
 .venv/*
 
-# Release folder
+# Release artefacts
 release
+incremental-reading-v*.zip
+
+# Anki addon metadata
+meta.json

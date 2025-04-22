@@ -196,7 +196,8 @@ function createTocHeaderElement() {
     header.className = 'ir-toc-header';
     header.innerHTML = '<span>TOC</span><button id="ir-toc-toggle">−</button>';
     
-    document.getElementById('ir-toc-toggle').addEventListener('click', function() {
+    const toggleButton = header.querySelector('#ir-toc-toggle');
+    toggleButton.addEventListener('click', function() {
         const tocContent = document.getElementById('ir-toc-content');
         const isVisible = tocContent.style.display !== 'none';
         
@@ -209,6 +210,7 @@ function createTocHeaderElement() {
         }
     });
 
+    
     return header;
 }
 

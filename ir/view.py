@@ -14,6 +14,8 @@
 # LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
+import re
+
 from anki.cards import Card
 from aqt import gui_hooks, mw
 
@@ -102,14 +104,14 @@ class ViewManager:
             js += self._tocScript
 
             js += f"""
-const SAVED_POSITION = {self._settings["scroll"][cid]};
-const LINE_SCROLL_FACTOR = {self._settings["lineScrollFactor"]};
-const PAGE_SCROLL_FACTOR = {self._settings["pageScrollFactor"]};
+SAVED_POSITION = {self._settings["scroll"][cid]};
+LINE_SCROLL_FACTOR = {self._settings["lineScrollFactor"]};
+PAGE_SCROLL_FACTOR = {self._settings["pageScrollFactor"]};
             """
             js += self._scrollScript
 
         if js:
-            html += "<script>" + js + "</script>"
+            html += "<script id='ir-script'>" + js + "</script>"
 
         return html
 

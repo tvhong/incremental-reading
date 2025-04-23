@@ -19,6 +19,8 @@ function createTableOfContents() {
     
     // Use setTimeout to ensure DOM is fully loaded
     setTimeout(() => {
+        removeTocContainerElement();
+
         const tocItems = parseHeadings();
         addTocContainerElement(tocItems);
         makeTocDraggable();
@@ -134,6 +136,13 @@ function parseHeadings() {
     });
 
     return tocItems;
+}
+
+function removeTocContainerElement() {
+    const tocContainer = document.getElementById('ir-toc-container');
+    if (tocContainer) {
+        tocContainer.remove();
+    }
 }
 
 function addTocContainerElement(tocItems) {
